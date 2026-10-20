@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Калькулятор кредитных каникул для бизнеса | TOPUS</title>
+<style>
+*{box-sizing:border-box}
+html{background:#080f14;color:#edf5f6;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;padding:0 0 60px}
+a{color:#83e5eb}
+.wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+/* ---------- header ---------- */
+header{border-bottom:1px solid #21373f;padding:22px 0 18px;margin-bottom:22px}
+.brandrow{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:11px;letter-spacing:2px;color:#59dce4}
+.brandrow b{color:#fff;letter-spacing:3px}
+h1{font-size:34px;line-height:1.08;letter-spacing:-.7px;margin:14px 0 8px}
+.sub{color:#afd5de;font-size:15px;line-height:1.4;max-width:70ch;margin:0}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+a.hublink{color:#59dce4;text-decoration:none;font-size:13px;align-self:center;border:1px solid #34515e;border-radius:8px;padding:8px 13px}a.hublink:hover{border-color:#59dce4;color:#fff}button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid #34515e;background:#12232b;color:#cfe8ee;padding:9px 14px;font-size:13px;transition:.15s}
+button:hover{border-color:#59dce4;color:#fff}
+button.primary{background:#59dce4;border-color:#59dce4;color:#10242a;font-weight:bold}
+button.primary:hover{background:#7ee9f0;color:#10242a}
+/* ---------- layout ---------- */
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:18px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}h1{font-size:27px}}
+.card{background:#101e26;border:1px solid #2a4450;border-radius:12px;padding:18px 18px 16px;margin-bottom:16px}
+.card h2{font-size:13px;letter-spacing:1.6px;text-transform:uppercase;color:#59dce4;margin:0 0 14px;font-weight:bold}
+.card h2 span{color:#5f8593;letter-spacing:0;text-transform:none;font-weight:normal;margin-left:8px}
+/* ---------- fields ---------- */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;letter-spacing:.6px;color:#acc6ce;margin-bottom:6px}
+.field input,.field select{width:100%;font:inherit;font-size:15px;padding:10px 12px;border-radius:8px;border:1px solid #34515e;background:#0c1a21;color:#edf5f6}
+.field input:focus,.field select:focus{outline:none;border-color:#59dce4;box-shadow:0 0 0 3px #59dce41f}
+.field .hint{font-size:11.5px;color:#6f95a3;margin-top:5px;line-height:1.35}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.two{grid-template-columns:1fr}}
+.table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+.table td,.table th{border:1px solid #2a4450;padding:6px 8px;text-align:left}
+.table th{color:#83e5eb;font-weight:normal;background:#0d1c23}
+.table tr.hi td{background:#17343f;color:#fff}
+/* ---------- switches ---------- */
+.switch{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:8px;border:1px solid transparent;cursor:pointer;font-size:13.5px;line-height:1.35;color:#cfe0e6}
+.switch:hover{background:#0d1c23}
+.switch input{appearance:none;-webkit-appearance:none;flex:0 0 auto;width:36px;height:20px;border-radius:999px;background:#2a4450;position:relative;cursor:pointer;margin:1px 0 0;transition:.15s}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#8aa8b2;transition:.15s}
+.switch input:checked{background:#f07a7a}
+.switch input:checked::after{left:19px;background:#fff}
+.switch b{color:#fff;font-weight:bold}
+.switch small{display:block;color:#6f95a3;font-size:11.5px;margin-top:2px}
+/* ---------- verdict ---------- */
+.verdict{border-radius:12px;padding:16px 16px 14px;border:1px solid;margin-bottom:14px}
+.verdict .tag{display:inline-block;font-size:10.5px;letter-spacing:1.4px;font-weight:bold;padding:4px 9px;border-radius:999px;margin-bottom:9px}
+.verdict p{margin:0;font-size:14px;line-height:1.45}
+.v-ok{border-color:#2f7a52;background:#0f2419}
+.v-ok .tag{background:#57d98a;color:#0b1f14}
+.v-warn{border-color:#8a6a26;background:#241f0f}
+.v-warn .tag{background:#f2c65c;color:#231a05}
+.v-bad{border-color:#8a3a3a;background:#241112}
+.v-bad .tag{background:#f07a7a;color:#260a0a}
+ul.reasons{margin:10px 0 0;padding-left:18px;font-size:12.8px;line-height:1.45;color:#cfe0e6}
+ul.reasons li{margin-bottom:6px}
+ul.reasons li.w{color:#f0d79a}
+/* ---------- calc ---------- */
+.result-table{width:100%;border-collapse:collapse;font-size:13px}
+.result-table td{padding:7px 0;border-bottom:1px solid #1e333c;vertical-align:top}
+.result-table td:first-child{color:#9dbec9;padding-right:12px}
+.result-table td:last-child{text-align:right;font-weight:bold;white-space:nowrap;font-variant-numeric:tabular-nums}
+.result-table tr:last-child td{border-bottom:0}
+.result-table tr.acc td:last-child{color:#83e5eb}
+.result-table tr.delta td:last-child{color:#f2c65c}
+.note{font-size:12px;line-height:1.45;color:#8fb3bf;border-left:3px solid #2a4450;padding:8px 12px;margin-top:12px}
+.note.warn{border-color:#8a6a26;background:#1e1a0d;color:#e8d3a0}
+.range-row{display:flex;align-items:center;gap:12px}
+.range-row input[type=range]{flex:1;accent-color:#59dce4;height:22px}
+.range-out{font-size:16px;font-weight:bold;color:#59dce4;min-width:76px;text-align:right}
+.ghost{color:#6f95a3}
+/* ---------- print card ---------- */
+#printcard{display:none}
+.prn table{width:100%;border-collapse:collapse;font-size:11px}
+.prn td{border:1px solid #b9c6cc;padding:5px 7px;vertical-align:top}
+.prn td:first-child{width:42%;color:#4b5b62}
+.prn h3{margin:14px 0 6px;font-size:12.5px}
+.sign{margin-top:26px;display:flex;justify-content:space-between;font-size:11px;color:#333}
+footer{border-top:1px solid #21373f;margin-top:28px;padding-top:14px;font-size:11px;color:#5f8593;line-height:1.5}
+
+/* ---------- print: на листе только справка ---------- */
+@media print{
+  @page{size:A4;margin:14mm}
+  html,body{background:#fff;color:#111;margin:0;padding:0}
+  /* интерфейс, шапка и подвал на печать не попадают */
+  header,footer,.toolbar,.grid,.card,#app-forms,#app-results{display:none!important}
+  .wrap{max-width:none;margin:0;padding:0}
+  #printcard{display:block!important;color:#111}
+  .prn,.prn *{color:#111}
+  .prn table,.prn tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brandrow"><span>TOPUS</span><span>БИЗНЕС / ФИНАНСЫ · 276-ФЗ</span></div>
+    <h1>Кредитные каникулы:<br>проверка права и расчёт паузы</h1>
+    <p class="sub">Проверьте, подпадает ли ваша компания и договор под Федеральный закон № 276-ФЗ, и посчитайте, во что обойдётся пауза: проценты, долг на выходе и платёж после каникул.</p>
+    <div class="toolbar"><a class="hublink" href="https://semkastler12.github.io/topus-bank-tools/">← Все инструменты</a>
+      <button class="primary" id="btnPrint" type="button">Справка / Печать PDF</button>
+      <button id="btnReset" type="button">Сбросить</button>
+      <span style="align-self:center;font-size:12px;color:#6f95a3">Данные не покидают браузер — сохраняются только локально</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+<div class="grid">
+
+  <!-- =================== ЛЕВАЯ КОЛОНКА: ВВОД =================== -->
+  <div id="app-forms">
+
+    <div class="card">
+      <h2>1. Заёмщик и договор</h2>
+      <div class="field">
+        <label for="category">Категория заёмщика</label>
+        <select id="category">
+          <option value="">— выберите —</option>
+          <option value="npd">Самозанятый на НПД (физлицо)</option>
+          <option value="micro">Микропредприятие</option>
+          <option value="small">Малое предприятие</option>
+          <option value="medium">Среднее предприятие</option>
+          <option value="other">Не МСП / статус не подтверждён</option>
+        </select>
+        <div class="hint" id="limitHint">Лимит суммы кредита зависит от категории: НПД — 10 млн ₽, микро — 60 млн ₽, малое — 400 млн ₽, среднее — 1 млрд ₽.</div>
+      </div>
+      <div class="two">
+        <div class="field">
+          <label for="amount">Размер кредита по договору, ₽</label>
+          <input id="amount" type="text" inputmode="decimal" placeholder="3 000 000">
+        </div>
+        <div class="field">
+          <label for="contractDate">Дата заключения договора</label>
+          <input id="contractDate" type="date">
+          <div class="hint">Механизм 276-ФЗ — для договоров с 01.03.2024</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2. Условия кредита <span>для расчёта</span></h2>
+      <div class="two">
+        <div class="field">
+          <label for="debt">Текущий основной долг, ₽</label>
+          <input id="debt" type="text" inputmode="decimal" placeholder="2 800 000">
+        </div>
+        <div class="field">
+          <label for="rate">Ставка, % годовых</label>
+          <input id="rate" type="text" inputmode="decimal" placeholder="24">
+        </div>
+      </div>
+      <div class="two">
+        <div class="field">
+          <label for="term">Оставшийся срок, мес.</label>
+          <input id="term" type="text" inputmode="numeric" placeholder="36">
+        </div>
+        <div class="field">
+          <label for="payment">Текущий платёж, ₽ <span class="ghost">(если знаете)</span></label>
+          <input id="payment" type="text" inputmode="decimal" placeholder="рассчитается">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3. Условия статьи 3 <span>включите, если верно</span></h2>
+      <label class="switch"><input type="checkbox" id="chk_overdue">
+        <span><b>Просрочка более 30 дней подряд</b><small>Непрерывный период ненадлежащего исполнения по основному долгу или процентам</small></span></label>
+      <label class="switch"><input type="checkbox" id="chk_early">
+        <span><b>Есть основание для досрочного возврата</b><small>Предусмотрено законом или договором и уже наступило</small></span></label>
+      <label class="switch"><input type="checkbox" id="chk_court">
+        <span><b>Вступил в силу судебный акт о взыскании</b><small>Взыскание долга, обращение взыскания на залог, расторжение договора или мировое соглашение</small></span></label>
+      <label class="switch"><input type="checkbox" id="chk_enforce">
+        <span><b>Предъявлен исполнительный документ</b><small>Или требование к поручителю, или обращение взыскания на предмет залога</small></span></label>
+      <label class="switch"><input type="checkbox" id="chk_bankrupt">
+        <span><b>Банкротство</b><small>Введена процедура или сведения о банкротстве есть в ЕФРСБ</small></span></label>
+      <label class="switch"><input type="checkbox" id="chk_liquid">
+        <span><b>Реорганизация или ликвидация</b><small>Компания в процессе реорганизации либо ликвидации</small></span></label>
+      <label class="switch"><input type="checkbox" id="chk_prior">
+        <span><b>Каникулы по 276-ФЗ по этому кредиту были менее 5 лет назад</b><small>Повторно — не чаще одного раза в пять лет</small></span></label>
+      <label class="switch"><input type="checkbox" id="chk_otherlaw">
+        <span><b>По договору действует льготный период по другому федеральному закону</b><small>Ипотечные каникулы, кредитные каникулы для граждан и т. п.</small></span></label>
+      <label class="switch"><input type="checkbox" id="chk_part25">
+        <span><b>Участие более 25% в капитале не-МСП</b><small>Участие заёмщика в таком юрлице или его участие в капитале заёмщика</small></span></label>
+      <label class="switch"><input type="checkbox" id="chk_multiparty">
+        <span><b>Несколько лиц на стороне заёмщика или кредитора</b><small>В том числе синдицированный кредит</small></span></label>
+      <label class="switch"><input type="checkbox" id="chk_excl209">
+        <span><b>Категория исключена по ч. 3 ст. 14 закона № 209-ФЗ</b><small>Проверьте вид деятельности: одной записи в реестре МСП недостаточно</small></span></label>
+      <label class="switch"><input type="checkbox" id="chk_pledge">
+        <span><b>Залог или поручительство третьего лица</b><small>Не блокер: понадобится согласие залогодателя или поручителя</small></span></label>
+    </div>
+
+    <div class="card">
+      <h2>4. Параметры паузы</h2>
+      <div class="field">
+        <label for="months">Длительность каникул</label>
+        <div class="range-row">
+          <input id="months" type="range" min="1" max="6" step="1" value="6">
+          <span class="range-out" id="monthsOut">6 мес.</span>
+        </div>
+        <div class="hint">Максимум по закону — 6 месяцев</div>
+      </div>
+      <div class="two">
+        <div class="field">
+          <label for="reqDate">Дата направления требования</label>
+          <input id="reqDate" type="date">
+        </div>
+        <div class="field">
+          <label for="startDate">Дата начала каникул</label>
+          <input id="startDate" type="date">
+          <div class="hint">Не раньше дня отправки и не позже месяца после него</div>
+        </div>
+      </div>
+      <div class="hint" id="dateHint"></div>
+    </div>
+
+  </div>
+
+  <!-- =================== ПРАВАЯ КОЛОНКА: РЕЗУЛЬТАТ =================== -->
+  <div id="app-results">
+
+    <div class="verdict v-warn" id="verdict">
+      <span class="tag" id="verdictTag">ПРОВЕРКА</span>
+      <p id="verdictText">Заполните категорию заёмщика, сумму кредита и дату договора — вердикт появится здесь.</p>
+      <ul class="reasons" id="reasons"></ul>
+    </div>
+
+    <div class="card">
+      <h2>Стоимость паузы</h2>
+      <table class="result-table" id="calcTable"><tbody></tbody></table>
+      <div class="note" id="calcNote">Введите остаток долга, ставку и оставшийся срок.</div>
+    </div>
+
+    <div class="card">
+      <h2>Сравнение сценариев</h2>
+      <table class="result-table" id="scenarioTable"><tbody></tbody></table>
+    </div>
+
+    <div class="card">
+      <h2>Что дальше</h2>
+      <ul class="reasons" style="padding-left:16px;margin:0">
+        <li>В требовании укажите ссылку на <b>№ 276-ФЗ</b>, номер и дату договора, желаемые длительность и дату начала.</li>
+        <li>Банк рассматривает требование <b>до 15 рабочих дней</b>. Молчание 30 календарных дней — период считается установленным.</li>
+        <li>Приложите договор, график, сведения о долге и просрочке, документы по обеспечению, подтверждение статуса МСП или НПД.</li>
+        <li>Не подошли под закон — обсуждайте реструктуризацию, но её условия банк не обязан согласовывать по закону.</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- =================== ПЕЧАТНАЯ СПРАВКА =================== -->
+<div id="printcard" class="prn">
+  <div style="border-bottom:1px solid #999;padding-bottom:6px;margin-bottom:10px;font-size:11px;letter-spacing:2px;color:#444">
+    TOPUS · БИЗНЕС / ФИНАНСЫ · СПРАВКА ПО 276-ФЗ
+  </div>
+  <h2 style="margin:0 0 4px;font-size:17px">Расчёт кредитных каникул</h2>
+  <div style="font-size:11px;color:#555" id="prnDate"></div>
+  <h3>Вводные данные</h3>
+  <div id="prnInputs"></div>
+  <h3>Результат проверки</h3>
+  <div id="prnVerdict"></div>
+  <h3>Расчёт</h3>
+  <div id="prnCalc"></div>
+  <div style="font-size:10px;color:#555;margin-top:10px;line-height:1.45">
+    Учебный расчёт. Ставка приведена к месячной (годовая / 12) без ежедневного начисления, платёж — аннуитетный.
+    Фактический результат зависит от порядка начисления процентов, числа дней, даты начала и условий договора.
+    Справка не является юридическим заключением или банковским расчётом.
+  </div>
+  <div class="sign"><span>Дата: ______________</span><span>Подпись: ______________</span></div>
+</div>
+
+<footer>
+  <div>Расчёт учебный: условная месячная ставка, аннуитетный платёж, без ежедневного начисления и комиссий. Проверьте условия в договоре и уточните расчёт у банка.</div>
+  <div style="margin-top:6px">Правовая основа: Федеральный закон от 31.07.2025 № 276-ФЗ. Обновлено 20.10.2026</div>
+</footer>
+</div>
+
+<!-- ============ чистые расчёты (тестируются отдельно) ============ -->
+<script id="calc-src">
+var Calc = (function () {
+  var LIMITS = { npd: 10e6, micro: 60e6, small: 400e6, medium: 1e9, other: null };
+  var LIMIT_LABEL = { npd: '10 млн ₽', micro: '60 млн ₽', small: '400 млн ₽', medium: '1 млрд ₽', other: '—' };
+  var CATEGORY_LABEL = {
+    npd: 'Самозанятый на НПД', micro: 'Микропредприятие',
+    small: 'Малое предприятие', medium: 'Среднее предприятие',
+    other: 'Не МСП / статус не подтверждён'
+  };
+  var MIN_CONTRACT_DATE = '2024-03-01';
+
+  function num(v) {
+    if (typeof v === 'number') return isFinite(v) ? v : 0;
+    var s = String(v == null ? '' : v).replace(/[\s\u00a0]/g, '').replace(',', '.');
+    var n = parseFloat(s);
+    return isFinite(n) ? n : 0;
+  }
+
+  function money(n) {
+    if (!isFinite(n)) return '—';
+    var s = Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+    return s + '\u00a0₽';
+  }
+
+  function digits(n) {
+    if (!isFinite(n)) return '—';
+    return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+  }
+
+  function moneyShort(n) {
+    if (!isFinite(n)) return '—';
+    if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(n % 1e9 === 0 ? 0 : 1).replace('.', ',') + ' млрд ₽';
+    if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(n % 1e6 === 0 ? 0 : 2).replace('.', ',') + ' млн ₽';
+    return money(n);
+  }
+
+  function pctStr(delta, base) {
+    if (!base) return '—';
+    var p = delta / base * 100;
+    return (p >= 0 ? '+' : '') + (Math.abs(p) >= 10 ? p.toFixed(0) : p.toFixed(1)).replace('.', ',') + '%';
+  }
+
+  // Аннуитетный платёж: p — долг, i — месячная ставка (доля), n — число месяцев
+  function annuity(p, i, n) {
+    if (!p || !n || n <= 0) return 0;
+    if (!i) return p / n;
+    var k = Math.pow(1 + i, n);
+    return p * i * k / (k - 1);
+  }
+
+  function addMonths(dateStr, months) {
+    if (!dateStr) return null;
+    var d = new Date(dateStr + 'T00:00:00');
+    if (isNaN(d.getTime())) return null;
+    var day = d.getDate();
+    d.setMonth(d.getMonth() + months);
+    if (d.getDate() !== day) d.setDate(0);
+    return d;
+  }
+
+  function isoDate(d) {
+    if (!d) return '';
+    var m = String(d.getMonth() + 1), day = String(d.getDate());
+    return d.getFullYear() + '-' + (m.length < 2 ? '0' + m : m) + '-' + (day.length < 2 ? '0' + day : day);
+  }
+
+  function ruDate(dateStr) {
+    if (!dateStr) return '—';
+    var p = String(dateStr).split('-');
+    if (p.length !== 3) return dateStr;
+    return p[2] + '.' + p[1] + '.' + p[0];
+  }
+
+  // Проверка права по 276-ФЗ
+  function check(inp) {
+    var blockers = [], warnings = [], notes = [];
+    var cat = inp.category || '';
+    var amount = num(inp.amount);
+    var hasCategory = !!CATEGORY_LABEL[cat];
+
+    if (!hasCategory) {
+      notes.push('Категория заёмщика не выбрана: закон действует только для субъектов МСП и физлиц на НПД.');
+    } else if (cat === 'other') {
+      blockers.push('Нет подтверждённого статуса МСП или НПД — механизм 276-ФЗ не применяется к этому заёмщику.');
+    } else if (amount > 0) {
+      var lim = LIMITS[cat];
+      if (lim && amount > lim) {
+        blockers.push('Размер кредита ' + moneyShort(amount) + ' превышает лимит для категории «' + CATEGORY_LABEL[cat] + '» — ' + LIMIT_LABEL[cat] + '. Сопоставлять нужно сумму кредита по договору, а не текущий остаток.');
+      }
+    } else if (amount <= 0) {
+      notes.push(hasCategory ? 'Не указан размер кредита — лимит для категории «' + CATEGORY_LABEL[cat] + '» не проверен (' + LIMIT_LABEL[cat] + ').' : '');
+    }
+
+    if (!inp.contractDate) {
+      notes.push('Не указана дата договора — механизм действует для договоров, заключённых с 01.03.2024.');
+    } else if (inp.contractDate < MIN_CONTRACT_DATE) {
+      blockers.push('Договор заключён ' + ruDate(inp.contractDate) + ', то есть раньше 01.03.2024. По 276-ФЗ такой договор не подпадает; банк может предложить собственную программу.');
+    }
+
+    if (inp.overdue30) blockers.push('Непрерывная просрочка превысила 30 календарных дней — условие статьи 3 не выполнено.');
+    if (inp.earlyDemand) blockers.push('Наступило предусмотренное основание для досрочного возврата кредита.');
+    if (inp.court) blockers.push('Есть вступивший в силу судебный акт о взыскании, обращении взыскания на залог, расторжении договора или мировое соглашение.');
+    if (inp.enforcement) blockers.push('Предъявлен исполнительный документ, требование к поручителю либо обращено взыскание на залог.');
+    if (inp.bankruptcy) blockers.push('Введена процедура банкротства или есть сведения о банкротстве в ЕФРСБ.');
+    if (inp.liquidation) blockers.push('Заёмщик находится в процессе реорганизации или ликвидации.');
+    if (inp.priorHolidays) blockers.push('Каникулы по 276-ФЗ по этому кредиту уже применялись менее 5 лет назад — повторно нельзя.');
+    if (inp.otherLawPeriod) blockers.push('По этому же договору уже действует льготный период по другому федеральному закону.');
+    if (inp.part25) blockers.push('Участие более 25% между заёмщиком и юрлицом, не относящимся к МСП, — исключение из механизма.');
+    if (inp.multiparty) blockers.push('Несколько лиц на стороне заёмщика или кредитора (в том числе синдицированный кредит) — такая конструкция исключена.');
+    if (inp.excluded209) blockers.push('Категория МСП исключена по ч. 3 ст. 14 закона № 209-ФЗ.');
+
+    if (inp.pledgeThirdParty) warnings.push('Залог или поручительство третьего лица: к требованию нужно приложить согласие залогодателя (поручителя), иначе банк вправе отказать.');
+    if (!inp.reqDate) warnings.push('Не указана дата направления требования — без неё нельзя проверить допустимую дату начала каникул.');
+    if (inp.startDate && inp.reqDate) {
+      if (inp.startDate < inp.reqDate) warnings.push('Дата начала каникул раньше даты направления требования: по закону так нельзя.');
+      else {
+        var maxStart = isoDate(addMonths(inp.reqDate, 1));
+        if (maxStart && inp.startDate > maxStart) warnings.push('Дата начала каникул позже одного месяца после направления требования — такая дата недопустима.');
+      }
+    }
+
+    if (cat === 'medium') {
+      notes.push('Средние предприятия платят проценты ежемесячно; при неуплате более 7 календарных дней подряд они включаются в основной долг.');
+    } else if (cat === 'npd' || cat === 'micro' || cat === 'small') {
+      notes.push('Для самозанятых, микро- и малых предприятий начисленные проценты ежемесячно капитализируются — долг растёт.');
+    }
+
+    var status;
+    if (!hasCategory || !amount || !inp.contractDate) {
+      status = 'idle';  /* пока обязательные поля не заполнены, отказом не пугаем */
+      blockers = [];
+    } else {
+      status = blockers.length ? 'bad' : (warnings.length ? 'warn' : 'ok');
+    }
+    return { status: status, blockers: blockers, warnings: warnings, notes: notes };
+  }
+
+  // Расчёт последствий паузы
+  function calc(inp) {
+    var debt = num(inp.debt);
+    var rate = num(inp.rate);
+    var term = Math.round(num(inp.term));
+    var months = Math.round(num(inp.months)) || 6;
+    var payment = num(inp.payment);
+    if (debt <= 0 || term <= 0) return null;
+
+    var i = rate / 100 / 12;
+    var capitalizes = inp.category !== 'medium';
+    var basePayment = payment > 0 ? payment : annuity(debt, i, term);
+
+    var debtEnd, interestPaused, cashDuring, cashMonthly;
+    if (capitalizes) {
+      debtEnd = debt * Math.pow(1 + i, months);
+      interestPaused = debtEnd - debt;
+      cashDuring = 0;
+      cashMonthly = 0;
+    } else {
+      debtEnd = debt;
+      interestPaused = debt * i * months;
+      cashDuring = interestPaused;
+      cashMonthly = debt * i;
+    }
+
+    var newTerm = term + months;
+    var newPayment = annuity(debtEnd, i, newTerm);
+    var interestWithout = basePayment * term - debt;
+    var interestAfter = newPayment * newTerm - debt;
+
+    return {
+      months: months, monthlyRate: i, debtIn: debt,
+      basePayment: basePayment, debtEnd: debtEnd, debtGrowth: debtEnd - debt,
+      interestPaused: interestPaused, cashDuring: cashDuring, cashMonthly: cashMonthly,
+      capitalizes: capitalizes, termIn: term, newTerm: newTerm,
+      newPayment: newPayment, paymentDelta: newPayment - basePayment,
+      interestWithout: interestWithout, interestAfter: interestAfter,
+      interestExtra: interestAfter - interestWithout
+    };
+  }
+
+  return {
+    LIMITS: LIMITS, LIMIT_LABEL: LIMIT_LABEL, CATEGORY_LABEL: CATEGORY_LABEL,
+    MIN_CONTRACT_DATE: MIN_CONTRACT_DATE,
+    num: num, money: money, digits: digits, moneyShort: moneyShort, pctStr: pctStr,
+    annuity: annuity, addMonths: addMonths, isoDate: isoDate, ruDate: ruDate,
+    check: check, calc: calc
+  };
+})();
+</script>
+
+<!-- ============ UI ============ -->
+<script id="ui-src">
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var INPUT_IDS = ['category', 'amount', 'contractDate', 'debt', 'rate', 'term', 'payment', 'months', 'reqDate', 'startDate'];
+  var MONEY_IDS = ['amount', 'debt', 'payment'];
+  var KEY_CHECKS = {
+    chk_overdue: 'overdue30', chk_early: 'earlyDemand', chk_court: 'court', chk_enforce: 'enforcement',
+    chk_bankrupt: 'bankruptcy', chk_liquid: 'liquidation', chk_prior: 'priorHolidays',
+    chk_otherlaw: 'otherLawPeriod', chk_part25: 'part25', chk_multiparty: 'multiparty',
+    chk_excl209: 'excluded209', chk_pledge: 'pledgeThirdParty'
+  };
+  var CHECK_IDS = Object.keys(KEY_CHECKS);
+  var STORE_KEY = 'topus_276fz_v1';
+
+  function today() { return Calc.isoDate(new Date()); }
+
+  function readInput() {
+    var o = {
+      category: $('category').value,
+      amount: $('amount').value,
+      contractDate: $('contractDate').value,
+      debt: $('debt').value,
+      rate: $('rate').value,
+      term: $('term').value,
+      payment: $('payment').value,
+      months: Calc.num($('months').value) || 6,
+      reqDate: $('reqDate').value,
+      startDate: $('startDate').value
+    };
+    CHECK_IDS.forEach(function (id) { o[KEY_CHECKS[id]] = $(id).checked; });
+    return o;
+  }
+
+  function saveState(inp) {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(inp)); } catch (e) {}
+  }
+
+  function loadState() {
+    var raw = null;
+    try { raw = localStorage.getItem(STORE_KEY); } catch (e) {}
+    if (!raw) return false;
+    var o;
+    try { o = JSON.parse(raw); } catch (e) { return false; }
+    INPUT_IDS.forEach(function (id) {
+      if (o[id] != null && o[id] !== '') $(id).value = o[id];
+    });
+    CHECK_IDS.forEach(function (id) {
+      if (o[KEY_CHECKS[id]] != null) $(id).checked = !!o[KEY_CHECKS[id]];
+    });
+    return !!(o.category || o.amount || o.debt);
+  }
+
+  function renderReasons(list, items, cls) {
+    items.forEach(function (t) {
+      if (!t) return;
+      var li = document.createElement('li');
+      if (cls) li.className = cls;
+      li.textContent = t;
+      list.appendChild(li);
+    });
+  }
+
+  var TAGS = {
+    ok:   'ПОДХОДИТ',
+    warn: 'НУЖНА ПРОВЕРКА',
+    bad:  'НЕ ПОДХОДИТ',
+    idle: 'ПРОВЕРКА'
+  };
+  var TEXTS = {
+    ok:   'По введённым данным заёмщик и договор соответствуют условиям 276-ФЗ: банк обязан рассмотреть требование и установить льготный период до 6 месяцев.',
+    warn: 'Явных препятствий нет, но есть обстоятельства, которые банк проверит по документам. Устраните их до отправки требования.',
+    bad:  'По введённым данным право на каникулы по 276-ФЗ не возникает. Это не запрет на переговоры: можно отдельно предложить банку реструктуризацию.',
+    idle: 'Заполните категорию заёмщика, сумму кредита и дату договора — вердикт появится здесь.'
+  };
+
+  function renderVerdict(res) {
+    var box = $('verdict'), ul = $('reasons');
+    box.className = 'verdict v-' + (res.status === 'idle' ? 'warn' : res.status);
+    $('verdictTag').textContent = TAGS[res.status];
+    $('verdictText').textContent = TEXTS[res.status];
+    ul.innerHTML = '';
+    renderReasons(ul, res.blockers.map(function (t) { return '✕ ' + t; }));
+    renderReasons(ul, res.warnings.map(function (t) { return '! ' + t; }), 'w');
+    renderReasons(ul, res.notes.map(function (t) { return '· ' + t; }));
+  }
+
+  function row(label, value, cls) {
+    var tr = document.createElement('tr');
+    if (cls) tr.className = cls;
+    var a = document.createElement('td'); a.textContent = label;
+    var b = document.createElement('td'); b.textContent = value;
+    tr.appendChild(a); tr.appendChild(b);
+    return tr;
+  }
+
+  function renderCalc(r, inp) {
+    var tb = $('calcTable').tBodies[0];
+    var note = $('calcNote');
+    tb.innerHTML = '';
+    var sb = $('scenarioTable').tBodies[0];
+    sb.innerHTML = '';
+    if (!r) {
+      tb.appendChild(row('Платёж по графику', '—'));
+      sb.appendChild(row('Итог', '—'));
+      note.className = 'note';
+      note.textContent = 'Введите остаток долга, ставку и оставшийся срок, чтобы увидеть стоимость паузы.';
+      return;
+    }
+    tb.appendChild(row('Платёж по графику', Calc.money(r.basePayment)));
+    tb.appendChild(row('Ставка в месяц', (r.monthlyRate * 100).toFixed(2).replace('.', ',') + '%'));
+    tb.appendChild(row('Начислено процентов за ' + r.months + ' мес.', Calc.money(r.interestPaused), 'acc'));
+    tb.appendChild(row('Долг на выходе из каникул', Calc.money(r.debtEnd), 'acc'));
+    tb.appendChild(row('Рост долга', Calc.money(r.debtGrowth) + ' · ' + Calc.pctStr(r.debtGrowth, r.debtIn), 'delta'));
+    tb.appendChild(row(r.capitalizes ? 'Наличные выплаты в паузу' : 'Проценты к уплате ежемесячно', r.capitalizes ? Calc.money(0) : Calc.money(r.cashMonthly) + ' / мес.'));
+    tb.appendChild(row('Платёж после каникул', Calc.money(r.newPayment) + ' · ' + Calc.pctStr(r.paymentDelta, r.basePayment), 'delta'));
+    tb.appendChild(row('Срок', r.termIn + ' мес. → ' + r.newTerm + ' мес.'));
+    tb.appendChild(row('Переплата за весь срок', Calc.money(r.interestAfter) + ' · ' + Calc.pctStr(r.interestExtra, r.interestWithout), 'delta'));
+
+    note.className = 'note';
+    note.textContent = r.capitalizes
+      ? 'Сценарий с капитализацией: проценты ежемесячно прибавляются к основному долгу, как для самозанятых, микро- и малых предприятий. Платёж и срок пересчитаны аннуитетно.'
+      : 'Сценарий для средних предприятий: проценты уплачиваются ежемесячно, долг не растёт. Если проценты не платить более 7 календарных дней подряд, они включаются в основной долг.';
+
+    if (r.paymentDelta < 0) {
+      note.className = 'note warn';
+      note.textContent = 'Платёж снижается только за счёт удлинения срока на ' + r.months + ' мес. Это не экономия: переплата за весь срок выросла на ' + Calc.money(r.interestExtra) + ' (' + Calc.pctStr(r.interestExtra, r.interestWithout) + ').';
+    }
+
+    sb.appendChild(row('Продолжать платить · остаток долга через ' + r.months + ' мес.', Calc.money(r.debtIn)));
+    sb.appendChild(row('Продолжать платить · интерес за весь срок', Calc.money(r.interestWithout)));
+    sb.appendChild(row('Каникулы · остаток долга через ' + r.months + ' мес.', Calc.money(r.debtEnd), 'acc'));
+    sb.appendChild(row('Каникулы · интерес за весь срок (срок +' + r.months + ' мес.)', Calc.money(r.interestAfter), 'acc'));
+    sb.appendChild(row('Разница в процентах', Calc.money(r.interestExtra) + ' · ' + Calc.pctStr(r.interestExtra, r.interestWithout), 'delta'));
+    sb.appendChild(row('Разница в платеже', Calc.money(r.paymentDelta) + ' / мес. · ' + Calc.pctStr(r.paymentDelta, r.basePayment), 'delta'));
+  }
+
+  function renderDates(inp) {
+    var hint = $('dateHint');
+    var parts = [];
+    if (inp.reqDate && inp.startDate) {
+      if (inp.startDate < inp.reqDate) {
+        parts.push('⚠ Дата начала раньше даты требования — банк скорректирует или откажет.');
+      } else {
+        var max = Calc.isoDate(Calc.addMonths(inp.reqDate, 1));
+        parts.push(max && inp.startDate > max
+          ? '⚠ Начало позже месяца после требования — недопустимо.'
+          : '✓ Дата начала в допустимом коридоре (день требования … ' + Calc.ruDate(max) + ').');
+      }
+    } else if (inp.reqDate) {
+      parts.push('Без даты начала период составит ' + Calc.num(inp.months) + ' месяцев с ' + Calc.ruDate(inp.reqDate) + '.');
+    }
+    hint.textContent = parts.join(' ');
+  }
+
+  function renderLimitHint(inp) {
+    var g = Calc.CATEGORY_LABEL[inp.category] ? ' Лимит: ' + Calc.LIMIT_LABEL[inp.category] + '.' : '';
+    var a = Calc.num(inp.amount);
+    var lim = inp.category ? Calc.LIMITS[inp.category] : null;
+    if (lim && a > lim) g += ' Введённая сумма превышает лимит.';
+    else if (lim && a > 0) g += ' Сумма в пределах лимита.';
+    $('limitHint').textContent = 'Категории: НПД — 10 млн ₽, микро — 60 млн ₽, малое — 400 млн ₽, среднее — 1 млрд ₽.' + g;
+  }
+
+  function renderPrint(inp, chk, r) {
+    $('prnDate').textContent = 'Сформировано: ' + new Date().toLocaleString('ru-RU');
+    var inputs = [
+      ['Категория заёмщика', Calc.CATEGORY_LABEL[inp.category] || '—'],
+      ['Размер кредита', inp.amount ? Calc.money(Calc.num(inp.amount)) : '—'],
+      ['Дата договора', Calc.ruDate(inp.contractDate)],
+      ['Остаток основного долга', inp.debt ? Calc.money(Calc.num(inp.debt)) : '—'],
+      ['Ставка', inp.rate ? inp.rate + ' % годовых' : '—'],
+      ['Оставшийся срок', inp.term ? Calc.num(inp.term) + ' мес.' : '—'],
+      ['Длительность каникул', Calc.num(inp.months) + ' мес.'],
+      ['Дата направления требования', Calc.ruDate(inp.reqDate)],
+      ['Дата начала каникул', Calc.ruDate(inp.startDate)]
+    ];
+    $('prnInputs').innerHTML = '<table>' + inputs.map(function (x) {
+      return '<tr><td>' + x[0] + '</td><td>' + x[1] + '</td></tr>';
+    }).join('') + '</table>';
+
+    var vtext = chk.status === 'ok' ? 'Соответствует условиям 276-ФЗ'
+      : chk.status === 'warn' ? 'Требует проверки документов' : 'Не соответствует условиям 276-ФЗ';
+    var items = chk.blockers.concat(chk.warnings).map(function (t) { return '<li>' + t + '</li>'; }).join('');
+    $('prnVerdict').innerHTML = '<table><tr><td>Вердикт</td><td><b>' + vtext + '</b></td></tr></table>' +
+      (items ? '<ul style="font-size:10.5px;line-height:1.45;margin:6px 0 0;padding-left:18px">' + items + '</ul>' : '');
+
+    if (!r) { $('prnCalc').innerHTML = '<div style="font-size:10.5px;color:#555">Недостаточно данных для расчёта.</div>'; return; }
+    var rows = [
+      ['Платёж по графику', Calc.money(r.basePayment)],
+      ['Проценты за период каникул', Calc.money(r.interestPaused)],
+      ['Долг на выходе из каникул', Calc.money(r.debtEnd)],
+      ['Платёж после каникул', Calc.money(r.newPayment)],
+      ['Срок после каникул', r.newTerm + ' мес. (было ' + r.termIn + ')'],
+      ['Переплата за весь срок', Calc.money(r.interestAfter)]
+    ];
+    $('prnCalc').innerHTML = '<table>' + rows.map(function (x) {
+      return '<tr><td>' + x[0] + '</td><td>' + x[1] + '</td></tr>';
+    }).join('') + '</table>';
+  }
+
+  function update() {
+    var inp = readInput();
+    var chk = Calc.check(inp);
+    var r = Calc.calc(inp);
+    renderVerdict(chk);
+    renderCalc(r, inp);
+    renderDates(inp);
+    renderLimitHint(inp);
+    renderPrint(inp, chk, r);
+    $('monthsOut').textContent = Calc.num(inp.months) + ' мес.';
+    saveState(inp);
+  }
+
+  function fmtMoneyInputs(ids) {
+    ids.forEach(function (id) {
+      var el = $(id);
+      el.addEventListener('blur', function () {
+        var v = Calc.num(el.value);
+        if (v > 0) el.value = Calc.digits(v);
+      });
+    });
+  }
+
+  function bind() {
+    INPUT_IDS.concat(CHECK_IDS).forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
+      el.addEventListener('input', update);
+      el.addEventListener('change', update);
+    });
+    fmtMoneyInputs(MONEY_IDS);
+
+    $('contractDate').value = today();
+    $('reqDate').value = today();
+    $('startDate').value = today();
+
+    if (!loadState()) {
+      $('category').value = 'small';
+      $('amount').value = '3 000 000';
+      $('debt').value = '2 800 000';
+      $('rate').value = '24';
+      $('term').value = '36';
+    }
+    update();
+
+    $('btnReset').addEventListener('click', function () {
+      try { localStorage.removeItem(STORE_KEY); } catch (e) {}
+      INPUT_IDS.forEach(function (id) { $(id).value = ''; });
+      CHECK_IDS.forEach(function (id) { $(id).checked = false; });
+      $('months').value = 6;
+      $('contractDate').value = today();
+      $('reqDate').value = today();
+      $('startDate').value = today();
+      $('category').value = 'small';
+      update();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    $('btnPrint').addEventListener('click', function () { window.print(); });
+    $('months').addEventListener('input', function () {
+      $('monthsOut').textContent = Calc.num($('months').value) + ' мес.';
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
+})();
+</script>
+</body>
+</html>

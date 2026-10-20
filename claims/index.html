@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Генератор претензий и жалоб | TOPUS</title>
+<style>
+*{box-sizing:border-box}
+html{background:#080f14;color:#edf5f6;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;padding:0 0 56px}
+a{color:#83e5eb}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+/* ---------- topbar ---------- */
+.top{position:sticky;top:0;z-index:50;background:#080f14ee;backdrop-filter:blur(10px);border-bottom:1px solid #1d323b}
+.top .wrap{display:flex;align-items:center;gap:12px;height:56px}
+.logo{font-size:13px;letter-spacing:3px;font-weight:bold;color:#fff}
+.logo i{font-style:normal;color:#59dce4}
+.crumb{font-size:11px;letter-spacing:1.6px;color:#5f8593;padding-left:14px;border-left:1px solid #21373f;white-space:nowrap}
+.spacer{flex:1}
+.counter{font-size:11.5px;color:#8fb3bf;white-space:nowrap}
+.counter b{color:#f2c65c}
+@media (max-width:820px){.crumb{display:none}.counter{display:none}}
+a.hublink{color:#9dbec9;text-decoration:none;font-size:12.5px;border:1px solid #2a4450;border-radius:8px;padding:8px 12px;white-space:nowrap}a.hublink:hover{border-color:#59dce4;color:#fff}button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid #34515e;background:#12232b;color:#cfe8ee;padding:8px 13px;font-size:13px;transition:.15s;white-space:nowrap}
+button:hover{border-color:#59dce4;color:#fff}
+button.primary{background:#59dce4;border-color:#59dce4;color:#10242a;font-weight:bold}
+button.primary:hover{background:#7ee9f0;color:#10242a}
+button.ghostbtn{background:transparent}
+/* ---------- hero ---------- */
+header.hero{padding:26px 0 16px}
+h1{font-size:30px;line-height:1.1;letter-spacing:-.6px;margin:0 0 9px}
+h1 em{font-style:normal;color:#59dce4}
+.sub{color:#afd5de;font-size:14.5px;line-height:1.45;max-width:76ch;margin:0}
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 18px}
+.tab{font-size:13px;padding:9px 14px;border-radius:999px;border:1px solid #2a4450;background:#101e26;color:#c4d8df;cursor:pointer;transition:.15s;white-space:nowrap}
+.tab:hover{border-color:#59dce4;color:#fff}
+.tab.on{background:#59dce4;border-color:#59dce4;color:#10242a;font-weight:bold}
+/* ---------- layout ---------- */
+.grid{display:grid;grid-template-columns:minmax(0,470px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.card{background:#101e26;border:1px solid #2a4450;border-radius:12px;padding:16px;margin-bottom:14px}
+.card h2{font-size:11.5px;letter-spacing:1.5px;text-transform:uppercase;color:#59dce4;margin:0 0 12px;font-weight:bold;display:flex;gap:8px;align-items:baseline}
+.card h2 span{color:#5f8593;letter-spacing:0;text-transform:none;font-weight:normal;font-size:11px}
+.field{margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11.5px;letter-spacing:.4px;color:#acc6ce;margin-bottom:5px}
+.field label i{color:#6f95a3;font-style:normal}
+.field input,.field select,.field textarea{width:100%;font:inherit;font-size:14px;padding:9px 11px;border-radius:8px;border:1px solid #34515e;background:#0c1a21;color:#edf5f6;transition:.15s}
+.field textarea{resize:vertical;min-height:64px;line-height:1.45}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:#59dce4;box-shadow:0 0 0 3px #59dce422}
+.field .hint{font-size:11px;color:#6f95a3;margin-top:4px;line-height:1.35}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:540px){.two{grid-template-columns:1fr}}
+.inline{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:#c4d8df;line-height:1.4;padding:6px 0}
+.inline input{width:16px;height:16px;flex:0 0 auto;margin:1px 0 0;accent-color:#59dce4}
+/* ---------- warnings ---------- */
+.warnbox{background:#241f0f;border:1px solid #8a6a26;border-radius:10px;padding:11px 14px;margin-bottom:12px;font-size:12.5px;line-height:1.45;color:#f0d79a}
+.warnbox ul{margin:6px 0 0;padding-left:17px}
+.warnbox li{margin-bottom:4px}
+/* ---------- paper ---------- */
+.preview-col{position:sticky;top:72px}
+@media (max-width:980px){.preview-col{position:static}}
+.paper{background:#fff;color:#111;border-radius:10px;padding:30px 34px;font-family:"Times New Roman",Georgia,serif;font-size:14.5px;line-height:1.5;box-shadow:0 14px 40px #0006;max-height:calc(100vh - 110px);overflow:auto}
+@media (max-width:980px){.paper{max-height:none}}
+.paper .meta{text-align:right;font-size:.94em;line-height:1.35}
+.paper .meta b{font-weight:normal}
+.paper .doc-title{text-align:center;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;margin:20px 0 16px;font-size:1.02em}
+.paper p{text-align:justify;margin:0 0 10px;hyphens:auto}
+.paper p.indent{text-indent:26px}
+.paper ul{margin:0 0 10px;padding-left:22px}
+.paper li{margin-bottom:4px;text-align:justify}
+.paper .sect{margin:14px 0 8px;font-weight:bold}
+.paper .sign{text-align:right;margin-top:26px;line-height:1.8}
+.paper .ph{background:#fff3c4;color:#7a5b00;border-radius:3px;padding:0 2px}
+.paper .divider{height:1px;background:#455;opacity:.25;margin:16px 0}
+/* ---------- memo ---------- */
+.memo{font-size:12.3px;line-height:1.5;color:#a9c6d0}
+.memo b{color:#eaf5f8}
+.memo ul{margin:6px 0 0;padding-left:17px}
+.memo li{margin-bottom:5px}
+/* ---------- toast ---------- */
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);background:#59dce4;color:#10242a;font-weight:bold;font-size:13px;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:80}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+footer{border-top:1px solid #21373f;margin-top:24px;padding:14px 0 0;font-size:11.5px;color:#5f8593;line-height:1.55}
+
+/* ---------- печать: только документ ---------- */
+@media print{
+  @page{size:A4;margin:18mm 16mm}
+  html,body{background:#fff;color:#111;margin:0;padding:0}
+  .top,header.hero,.tabs,.form-col,footer,.warnbox,.no-print,.memo-card,.hublink{display:none!important}
+  .wrap{max-width:none;margin:0;padding:0}
+  .grid{display:block;margin:0}
+  .preview-col{position:static}
+  .paper{box-shadow:none;border-radius:0;padding:0;max-height:none;overflow:visible;font-size:11.6pt;line-height:1.45}
+  .paper .ph{background:none;color:#111}
+  .paper .ph::before{content:"["}
+  .paper .ph::after{content:"]"}
+  .paper .sign{break-inside:avoid;page-break-inside:avoid}
+  .paper p,.paper li{orphans:3;widows:3}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <span class="logo">TOPUS<i>·</i></span>
+    <span class="crumb">ЮРИДИЧЕСКИЕ ДОКУМЕНТЫ</span>
+    <span class="spacer"></span>
+    <a class="hublink" href="https://semkastler12.github.io/topus-bank-tools/">← Все инструменты</a>
+    <span class="counter" id="counter"></span>
+    <button class="primary" id="btnCopy" type="button">Скопировать текст</button>
+    <button id="btnPrint" type="button">Печать / PDF</button>
+    <button class="ghostbtn" id="btnReset" type="button">Сбросить</button>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Претензии и жалобы: <em>пять готовых форм</em></h1>
+    <p class="sub">Выберите документ, заполните поля — текст собирается сразу. Жёлтым подсвечено то, что осталось указать. Печатается только документ, без интерфейса.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tabs" id="tabs"></div>
+
+  <div class="grid">
+
+    <!-- ===================== ФОРМА ===================== -->
+    <div class="form-col">
+
+      <div class="card">
+        <h2>Кому и от кого</h2>
+        <div class="field" data-group="org">
+          <label for="orgName" id="orgLabel">Организация (банк, МФО, страховщик)</label>
+          <input id="orgName" type="text" placeholder="ПАО «Банк»" autocomplete="off">
+        </div>
+        <div class="field" data-group="org">
+          <label for="orgAddr">Адрес организации <i>— из договора или сайта</i></label>
+          <input id="orgAddr" type="text" placeholder="191124, г. Санкт-Петербург, ул. …" autocomplete="off">
+        </div>
+        <div class="two">
+          <div class="field">
+            <label for="fio">ФИО заявителя</label>
+            <input id="fio" type="text" placeholder="Иванов Иван Иванович" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="status">Статус</label>
+            <select id="status">
+              <option value="person">Физическое лицо</option>
+              <option value="ip">ИП</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="addr">Адрес для ответа</label>
+          <input id="addr" type="text" placeholder="индекс, город, улица, дом, кв." autocomplete="off">
+        </div>
+        <div class="two">
+          <div class="field">
+            <label for="phone">Телефон</label>
+            <input id="phone" type="text" placeholder="+7 ___ ___-__-__" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input id="email" type="text" placeholder="name@mail.ru" autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Договор</h2>
+        <div class="two">
+          <div class="field">
+            <label for="contractKind">Вид договора</label>
+            <select id="contractKind">
+              <option value="потребительский кредит">Потребительский кредит</option>
+              <option value="кредитная карта">Кредитная карта</option>
+              <option value="автокредит">Автокредит</option>
+              <option value="ипотечный кредит">Ипотечный кредит</option>
+              <option value="микрозаём">Микрозаём</option>
+              <option value="договор добровольного страхования">Договор страхования</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="contractNo">Номер договора</label>
+            <input id="contractNo" type="text" placeholder="№ 0000/00" autocomplete="off">
+          </div>
+        </div>
+        <div class="two">
+          <div class="field">
+            <label for="contractDate">Дата договора</label>
+            <input id="contractDate" type="date">
+          </div>
+          <div class="field">
+            <label for="contractSum">Сумма договора, ₽ <i>— если известна</i></label>
+            <input id="contractSum" type="text" inputmode="decimal" placeholder="300 000" autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Обстоятельства и требование</h2>
+        <div class="field">
+          <label for="grounds" id="groundsLabel">Что нарушено</label>
+          <select id="grounds"></select>
+        </div>
+        <div class="field">
+          <label for="facts">Обстоятельства <i>— коротко, но с датами и суммами</i></label>
+          <textarea id="facts" rows="4" placeholder="Например: 12.05.2026 со счёта списана комиссия 7 900 ₽ за «подключение пакета», о которой при заключении договора не сообщали."></textarea>
+        </div>
+        <div class="two">
+          <div class="field">
+            <label for="claimSum">Сумма требований, ₽</label>
+            <input id="claimSum" type="text" inputmode="decimal" placeholder="7 900" autocomplete="off">
+          </div>
+          <div class="field" data-group="recalc">
+            <label for="period">Период начислений</label>
+            <input id="period" type="text" placeholder="с 01.2025 по 10.2026" autocomplete="off">
+          </div>
+        </div>
+        <div class="field" data-group="insurance">
+          <label for="payoutReqs">Реквизиты для возврата <i>— счёт, банк, БИК</i></label>
+          <textarea id="payoutReqs" rows="2" placeholder="Счёт 40817…, ПАО «Банк», БИК …"></textarea>
+        </div>
+        <label class="inline" data-group="insurance"><input type="checkbox" id="notifyBank">
+          <span>Договор страховки заключён при получении кредита — прошу уведомить кредитора</span></label>
+        <div class="field" data-group="ombud">
+          <label for="priorDate">Дата обращения в организацию <i>— по 123-ФЗ до финуполномоченного</i></label>
+          <input id="priorDate" type="date">
+        </div>
+        <div class="field" data-group="ombud">
+          <label for="priorResult">Результат обращения</label>
+          <select id="priorResult">
+            <option value="none">Ответа нет</option>
+            <option value="refusal">Получен отказ</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="attachments">Приложения <i>— по одному в строке</i></label>
+          <textarea id="attachments" rows="4"></textarea>
+        </div>
+        <div class="field">
+          <label for="docDate">Дата документа</label>
+          <input id="docDate" type="date">
+        </div>
+      </div>
+
+      <div class="card memo-card">
+        <h2>Памятка по подаче</h2>
+        <div class="memo" id="memo"></div>
+      </div>
+    </div>
+
+    <!-- ===================== ДОКУМЕНТ ===================== -->
+    <div class="preview-col">
+      <div class="warnbox no-print" id="warnbox" hidden></div>
+      <div class="paper" id="paper"></div>
+    </div>
+  </div>
+
+  <footer>
+    Шаблоны носят справочный характер и не заменяют юридическую консультацию. Сроки, суммы и редакции законов проверяйте на дату подачи: нормы меняются.
+    Данные обрабатываются в браузере и никуда не отправляются.
+  </footer>
+</div>
+
+<div id="toast">Скопировано</div>
+
+<script id="gen-src">
+var Gen = (function () {
+
+  var CBR_ADDR = '107016, г. Москва, ул. Неглинная, д. 12';
+
+  function num(v) {
+    if (typeof v === 'number') return isFinite(v) ? v : 0;
+    var s = String(v == null ? '' : v).replace(/[\s\u00a0]/g, '').replace(',', '.');
+    var n = parseFloat(s);
+    return isFinite(n) ? n : 0;
+  }
+  function rub(n) {
+    if (!isFinite(n) || n <= 0) return '';
+    return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + ' руб.';
+  }
+  function ruDate(v) {
+    if (!v) return '';
+    var p = String(v).split('-');
+    return p.length === 3 ? p[2] + '.' + p[1] + '.' + p[0] : v;
+  }
+  function days(a, b) {
+    if (!a || !b) return null;
+    var d1 = new Date(a + 'T00:00:00'), d2 = new Date(b + 'T00:00:00');
+    if (isNaN(d1) || isNaN(d2)) return null;
+    return Math.round((d2 - d1) / 86400000);
+  }
+  function isoToday() {
+    var d = new Date();
+    var m = String(d.getMonth() + 1), day = String(d.getDate());
+    return d.getFullYear() + '-' + (m.length < 2 ? '0' + m : m) + '-' + (day.length < 2 ? '0' + day : day);
+  }
+  function ph(label) { return '[[' + label + ']]'; }
+  function clean(v) { return String(v == null ? '' : v).trim(); }
+  function V(v, label) { var s = clean(v); return s || ph(label); }
+
+  var GROUNDS = {
+    commission: 'Удержаны комиссии за услуги, которые банк обязан оказывать бесплатно',
+    imposed: 'Навязана дополнительная услуга (страховка, пакет, подписка)',
+    order: 'Нарушена очерёдность погашения задолженности',
+    interest: 'Неверно начислены проценты или неустойка',
+    recalced: 'Задолженность посчитана без учёта досрочного погашения',
+    noService: 'Услуга оплачена, но не оказана / обязательство не исполнено',
+    other: 'Иное (опишите в обстоятельствах)'
+  };
+
+  /* Основания — законченные формулировки без незаполняемых вставок:
+     конкретика (даты, суммы) идёт отдельным абзацем «обстоятельства». */
+  var GROUNDS_TEXT = {
+    commission: 'При обслуживании договора организацией удержаны платежи, не предусмотренные законом и не связанные с исполнением обязательств по договору. Взимание платы за действия, которые организация совершает в своих интересах и за свой счёт, ущемляет права потребителя и противоречит пункту 2 статьи 16 Закона «О защите прав потребителей».',
+    imposed: 'При заключении договора мне была обусловлена покупка дополнительной услуги, без которой выдача кредита не производилась. В силу пункта 2 статьи 16 Закона «О защите прав потребителей» условия, обуславливающие приобретение одних услуг обязательным приобретением других, недействительны.',
+    order: 'Организацией нарушена очерёдность погашения требований по денежному обязательству, установленная статьёй 319 Гражданского кодекса Российской Федерации: поступившие денежные средства направлены на погашение неустойки и комиссий ранее основного долга и процентов.',
+    interest: 'Организацией неверно начислены проценты и (или) неустойка: размер начислений превышает предусмотренный договором и законом.',
+    recalced: 'Расчёт задолженности произведён без учёта произведённого досрочного погашения.',
+    noService: 'Организацией не исполнено обязательство по договору, за которое уплачено вознаграждение.',
+    other: ''
+  };
+
+  var TEMPLATES = {
+    claim: {
+      key: 'claim', short: 'Претензия в банк', title: 'Претензия (досудебная)',
+      recipient: 'org', groups: [],
+      grounds: ['commission', 'imposed', 'order', 'interest', 'noService', 'other'],
+      memo: [
+        'Отправьте заказным письмом с описью вложения или через официальный канал банка — сохраните квитанцию и номер отправления.',
+        'Для потребителя-физлица ответ на претензию — <b>10 дней</b> со дня получения (ст. 31 Закона «О защите прав потребителей»).',
+        'После претензии по спору с финорганизацией обычно требуется обращение к финансовому уполномоченному — до суда.',
+        'Приложите выписку и договор: без них банк отвечает формальным отказом.'
+      ],
+      build: function (f) {
+        var b = [];
+        b.push(contractPara(f));
+        var g = GROUNDS_TEXT[f.grounds];
+        if (g) b.push({ t: 'p', c: 'indent', s: g });
+        b.push(factsPara(f));
+        b.push({ t: 'p', c: 'indent', s: 'На основании изложенного требую:' });
+        b.push({ t: 'li', s: demands(f) });
+        b.push({ t: 'p', c: 'indent', s: 'Ответ, а также документы, подтверждающие исполнение требований, прошу направить по адресу, указанному в настоящей претензии, в срок, установленный статьёй 31 Закона Российской Федерации от 07.02.1992 № 2300-1 «О защите прав потребителей», — 10 дней со дня получения претензии.' });
+        b.push({ t: 'p', c: 'indent', s: 'При неудовлетворении требований буду вынужден(а) обратиться к финансовому уполномоченному и в суд, где заявлю о взыскании штрафа в размере 50% от суммы, присуждённой в мою пользу (пункт 6 статьи 13 Закона «О защите прав потребителей»), процентов по статье 395 Гражданского кодекса Российской Федерации и компенсации морального вреда.' });
+        return b;
+      }
+    },
+
+    cbr: {
+      key: 'cbr', short: 'Банк России', title: 'Жалоба на действия финансовой организации',
+      recipient: 'cbr', groups: [],
+      grounds: ['commission', 'imposed', 'order', 'interest', 'noService', 'other'],
+      memo: [
+        'Подаётся через интернет-приёмную Банка России (cbr.ru) или на бумаге; обращение рассматривается около <b>30 дней</b>.',
+        'Банк России проверяет соблюдение требований и применяет меры надзора, но <b>не взыскивает деньги</b> и не решает индивидуальный спор.',
+        'Параллельно готовьте претензию и обращение к финансовому уполномоченному — именно они восстанавливают права.',
+        'Укажите номер и дату договора: без этого обращение обрабатывается как обезличенное.'
+      ],
+      build: function (f) {
+        var b = [];
+        b.push({ t: 'p', c: 'indent', s: 'Сообщаю о нарушении законодательства Российской Федерации со стороны ' + V(f.orgName, 'наименование организации') + ' при заключении и исполнении ' + V(f.contractKind, 'вид договора') + ' № ' + V(f.contractNo, 'номер договора') + ' от ' + V(ruDate(f.contractDate), 'дата договора') + '.' });
+        var g = GROUNDS_TEXT[f.grounds];
+        if (g) b.push({ t: 'p', c: 'indent', s: g });
+        b.push(factsPara(f));
+        b.push({ t: 'p', c: 'indent', s: 'Изложенные обстоятельства, по моему мнению, не соответствуют требованиям Федерального закона от 21.12.2013 № 353-ФЗ «О потребительском кредите (займе)», Федерального закона от 02.12.1990 № 395-1 «О банках и банковской деятельности» и Закона «О защите прав потребителей».' });
+        b.push({ t: 'p', c: 'indent', s: 'Прошу провести проверку приведённых обстоятельств и принять меры в пределах компетенции Банка России, а также сообщить о результатах рассмотрения по указанным контактам.' });
+        b.push({ t: 'p', c: 'indent', s: 'Мне известно, что Банк России не является органом, разрешающим имущественные споры: вопрос возврата денежных средств решаю отдельно — претензией к организации, обращением к финансовому уполномоченному и в суд.' });
+        return b;
+      }
+    },
+
+    ombud: {
+      key: 'ombud', short: 'Финуполномоченный', title: 'Обращение к финансовому уполномоченному',
+      recipient: 'ombud', groups: ['ombud'],
+      grounds: ['commission', 'imposed', 'order', 'interest', 'recalced', 'noService', 'other'],
+      memo: [
+        'Способ доступен потребителю-физлицу; для ИП и юридических лиц — только претензия и суд.',
+        'Обращение возможно, если с даты направления требования организации прошло <b>30 дней</b> или получен отказ.',
+        'Имущественные требования — до <b>500 000 ₽</b>, рассмотрение обычно до <b>15 рабочих дней</b> (может продлеваться).',
+        'Подаётся через finombudsman.ru или на бумаге. Решение обязательно для организации, обжалуется в суде.',
+        'Обращение к финуполномоченному — обязательный шаг до суда по спорам, которые он рассматривает.'
+      ],
+      build: function (f) {
+        var b = [];
+        b.push({ t: 'p', c: 'indent', s: 'Между мной и ' + V(f.orgName, 'наименование организации') + ' заключён ' + V(f.contractKind, 'вид договора') + ' № ' + V(f.contractNo, 'номер договора') + ' от ' + V(ruDate(f.contractDate), 'дата договора') + '. В ходе исполнения договора возник спор.' });
+        var g = GROUNDS_TEXT[f.grounds];
+        if (g) b.push({ t: 'p', c: 'indent', s: g });
+        b.push(factsPara(f));
+        b.push({ t: 'p', c: 'indent', s: 'До обращения к финансовому уполномоченному я ' + (clean(f.priorDate) ? 'направил(а) ' + ruDate(f.priorDate) : 'направил(а) ' + ph('дата обращения')) + ' требование в организацию. ' + (f.priorResult === 'refusal' ? 'Организация отказала в удовлетворении требования.' : 'Ответ в установленный срок не получен.') });
+        b.push({ t: 'p', c: 'indent', s: 'На основании изложенного прошу взыскать с ' + V(f.orgName, 'наименование организации') + ' в мою пользу ' + (num(f.claimSum) ? rub(num(f.claimSum)) : ph('сумма требования')) + '.' });
+        b.push({ t: 'p', c: 'indent', s: 'Обращение подаётся в соответствии с Федеральным законом от 04.06.2018 № 123-ФЗ «Об уполномоченном по правам потребителей финансовых услуг». Имущественное требование не превышает размер, установленный для рассмотрения финансовым уполномоченным.' });
+        return b;
+      }
+    },
+
+    insurance: {
+      key: 'insurance', short: 'Отказ от страховки', title: 'Заявление об отказе от договора страхования и возврате страховой премии',
+      recipient: 'org', groups: ['insurance'],
+      grounds: ['imposed', 'other'],
+      memo: [
+        'Период охлаждения — <b>14 календарных дней</b> со дня заключения договора; возврат премии обычно в течение <b>7 рабочих дней</b>.',
+        'Отправляйте до истечения срока: дата отправки подтверждается квитанцией и описью, а не датой ответа страховщика.',
+        'Если страховка куплена при кредите, отказ от неё не меняет кредитный договор, но банк должен узнать о прекращении страхования.',
+        'Возврат возможен за вычетом периода, в течение которого договор действовал; при наступлении страхового события возврата не будет.'
+      ],
+      build: function (f) {
+        var b = [];
+        b.push({ t: 'p', c: 'indent', s: V(ruDate(f.contractDate), 'дата заключения договора') + ' между мной и ' + V(f.orgName, 'наименование страховщика') + ' заключён договор добровольного страхования № ' + V(f.contractNo, 'номер договора') + '. Страховая премия в размере ' + (num(f.claimSum) ? rub(num(f.claimSum)) : ph('сумма страховой премии')) + ' уплачена полностью.' });
+        b.push({ t: 'p', c: 'indent', s: 'От договора добровольного страхования отказываюсь. Отказ заявлен в пределах 14 календарных дней со дня заключения договора (период охлаждения), что даёт право на возврат уплаченной страховой премии за вычетом той части, в течение которой страхование действовало.' });
+        if (clean(f.facts)) b.push({ t: 'p', c: 'indent', s: V(f.facts, 'обстоятельства') });
+        if (f.notifyBank) b.push({ t: 'p', c: 'indent', s: 'Договор страхования заключён при получении кредита; прошу уведомить кредитора о прекращении договора страхования.' });
+        b.push({ t: 'p', c: 'indent', s: 'Прошу: расторгнуть договор добровольного страхования № ' + V(f.contractNo, 'номер договора') + '; возвратить страховую премию в течение 7 рабочих дней по следующим реквизитам — ' + V(f.payoutReqs, 'реквизиты для возврата') + '.' });
+        b.push({ t: 'p', c: 'indent', s: 'Если возврат не будет произведён, обращусь с претензией и к финансовому уполномоченному, а также буду требовать процентов по статье 395 Гражданского кодекса Российской Федерации.' });
+        return b;
+      }
+    },
+
+    recalc: {
+      key: 'recalc', short: 'Перерасчёт', title: 'Требование о перерасчёте задолженности',
+      recipient: 'org', groups: ['recalc'],
+      grounds: ['interest', 'recalced', 'commission', 'order', 'other'],
+      memo: [
+        'Приложите свой расчёт и выписку по счёту: без расчёта банк чаще всего отвечает отказом.',
+        'Для потребителя-физлица срок ответа — <b>10 дней</b> (ст. 31 Закона «О защите прав потребителей»).',
+        'Отдельно запросите полный расчёт задолженности и график — по ним видно, как банк распределял платежи.',
+        'Если после перерасчёта долг остаётся, платежи не прекращайте: нужна письменная договорённость о новом графике.'
+      ],
+      build: function (f) {
+        var b = [];
+        b.push(contractPara(f));
+        var g = GROUNDS_TEXT[f.grounds];
+        if (g) b.push({ t: 'p', c: 'indent', s: g });
+        b.push(factsPara(f));
+        b.push({ t: 'p', c: 'indent', s: 'Требую:' });
+        b.push({ t: 'li', s: [
+          'произвести перерасчёт начисленных процентов, комиссий и неустойки за период ' + V(f.period, 'период начислений') + ';',
+          (num(f.claimSum) ? 'исключить из задолженности необоснованно начисленные ' + rub(num(f.claimSum)) + ';' : 'исключить из задолженности необоснованно начисленные суммы;'),
+          'предоставить подробный расчёт задолженности с распределением поступивших платежей;',
+          'направить новый график платежей с учётом перерасчёта.'
+        ] });
+        b.push({ t: 'p', c: 'indent', s: 'Ответ и документы прошу направить по адресу, указанному в настоящем требовании, в течение 10 дней со дня его получения (статья 31 Закона «О защите прав потребителей»).' });
+        b.push({ t: 'p', c: 'indent', s: 'При отказе обращусь к финансовому уполномоченному и в суд с требованием о взыскании штрафа по пункту 6 статьи 13 Закона «О защите прав потребителей» и компенсации морального вреда.' });
+        return b;
+      }
+    }
+  };
+
+  function contractPara(f) {
+    return { t: 'p', c: 'indent', s: 'Между мной и ' + V(f.orgName, 'наименование организации') + ' заключён ' + V(f.contractKind, 'вид договора') + ' № ' + V(f.contractNo, 'номер договора') + ' от ' + V(ruDate(f.contractDate), 'дата договора') + (num(f.contractSum) ? ' на сумму ' + rub(num(f.contractSum)) : '') + '.' };
+  }
+
+  function factsPara(f) {
+    return { t: 'p', c: 'indent', s: clean(f.facts) || ph('обстоятельства: что произошло, когда и на какую сумму') };
+  }
+
+  function demands(f) {
+    var items = [];
+    items.push(num(f.claimSum) ? 'возвратить ' + rub(num(f.claimSum)) + ';' : 'возвратить необоснованно удержанные денежные средства;');
+    items.push('произвести перерасчёт задолженности с исключением необоснованных начислений;');
+    items.push('предоставить выписку по счёту и расчёт задолженности за спорный период;');
+    items.push('направить письменный ответ по указанным в претензии контактам.');
+    return items;
+  }
+
+  function recipientLines(f) {
+    var t = TEMPLATES[f.type];
+    if (t.recipient === 'cbr') return ['В Банк России', CBR_ADDR, '(интернет-приёмная cbr.ru)'];
+    if (t.recipient === 'ombud') return ['Финансовому уполномоченному', 'АНО «СОДФУ»', '(подача: finombudsman.ru)'];
+    var lines = [V(f.orgName, 'наименование организации')];
+    if (clean(f.orgAddr)) lines.push(clean(f.orgAddr));
+    return lines;
+  }
+
+  function applicantLines(f) {
+    var lines = [];
+    var isIp = f.status === 'ip';
+    lines.push((isIp ? 'Индивидуальный предприниматель ' : '') + (clean(f.fio) || ph('ФИО заявителя')));
+    lines.push('Адрес: ' + V(f.addr, 'адрес для ответа'));
+    if (clean(f.phone)) lines.push('Телефон: ' + clean(f.phone));
+    if (clean(f.email)) lines.push('E-mail: ' + clean(f.email));
+    return lines;
+  }
+
+  function build(f) {
+    var t = TEMPLATES[f.type] || TEMPLATES.claim;
+    var blocks = [];
+    blocks.push({ t: 'meta', s: recipientLines(f) });
+    blocks.push({ t: 'meta', s: applicantLines(f) });
+    blocks.push({ t: 'title', s: t.title });
+    blocks = blocks.concat(t.build(f));
+    var att = clean(f.attachments).split('\n').map(clean).filter(Boolean);
+    if (att.length) {
+      blocks.push({ t: 'sect', s: 'Приложения:' });
+      blocks.push({ t: 'li', s: att.map(function (a, i) { return (i + 1) + '. ' + a.replace(/[.;]+$/, '') + ';'; }) });
+    } else {
+      blocks.push({ t: 'p', c: 'indent', s: 'Приложения: ' + ph('перечислите приложенные документы') + '.' });
+    }
+    blocks.push({ t: 'sign', s: ['Дата: ' + V(ruDate(f.docDate), 'дата'), 'Подпись: ______________ / ' + (clean(f.fio) || 'ФИО') + ' /'] });
+    return blocks;
+  }
+
+  function warnings(f) {
+    var w = [];
+    var t = TEMPLATES[f.type] || TEMPLATES.claim;
+    if (!clean(f.fio)) w.push('Не указано ФИО заявителя — без него документ не имеет силы.');
+    if (!clean(f.addr)) w.push('Не указан адрес для ответа: юридически важно, куда организация обязана ответить.');
+    if (t.recipient === 'org' && !clean(f.orgName)) w.push('Не указано наименование организации — документ будет обезличенным.');
+    if (!clean(f.contractNo) || !clean(f.contractDate)) w.push('Не указаны номер и дата договора — по ним организацию обязывают отвечать.');
+    if (!clean(f.facts)) w.push('Не описаны обстоятельства: без дат и сумм ответ будет формальным отказом.');
+
+    if (f.type === 'ombud') {
+      if (f.status === 'ip') w.push('Вы указали статус ИП: финансовый уполномоченный рассматривает обращения потребителей-физлиц. Для ИП доступны претензия и суд.');
+      if (!clean(f.priorDate)) w.push('Не указана дата обращения в организацию — без неё обращение вернут.');
+      else {
+        var dd = days(f.priorDate, isoToday());
+        if (dd !== null && dd < 30 && f.priorResult !== 'refusal') w.push('С даты обращения в организацию прошло ' + dd + ' дн. — правило 30 дней не истекло, обращение могут не принять.');
+      }
+      if (num(f.claimSum) > 500000) w.push('Сумма требования больше 500 000 ₽ — финансовый уполномоченный такую сумму не рассматривает.');
+      if (!num(f.claimSum)) w.push('Не указана сумма требования — в обращении её нужно назвать.');
+    }
+    if (f.type === 'insurance') {
+      var d2 = days(f.contractDate, isoToday());
+      if (d2 !== null && d2 > 14) w.push('С даты заключения договора прошло ' + d2 + ' дн. — период охлаждения (14 календарных дней) истёк. Возврат премии возможен только на условиях договора.');
+      if (!num(f.claimSum)) w.push('Не указана страховая премия — сумма возврата должна быть в тексте.');
+      if (!clean(f.payoutReqs)) w.push('Не указаны реквизиты для возврата — без них деньги не перечислят.');
+    }
+    if (f.type === 'cbr') w.push('Банк России проверяет организацию, но не взыскивает деньги: для возврата суммы нужны претензия и финансовый уполномоченный.');
+    if (f.type === 'recalc' && !num(f.claimSum)) w.push('Не указана сумма оспариваемых начислений — расчёт должен быть в тексте.');
+    return w;
+  }
+
+  function placeholderCount(blocks) {
+    var n = 0;
+    blocks.forEach(function (b) {
+      var s = Array.isArray(b.s) ? b.s.join(' ') : String(b.s || '');
+      n += (s.match(/\[\[[^\]]+\]\]/g) || []).length;
+    });
+    return n;
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\[\[([^\]]+)\]\]/g, '<span class="ph">$1</span>');
+  }
+
+  function renderHTML(blocks) {
+    var out = [];
+    blocks.forEach(function (b) {
+      if (b.t === 'meta') {
+        out.push('<div class="meta">' + b.s.map(esc).join('<br>') + '</div>');
+      } else if (b.t === 'title') {
+        out.push('<div class="doc-title">' + esc(b.s) + '</div>');
+      } else if (b.t === 'sect') {
+        out.push('<div class="sect">' + esc(b.s) + '</div>');
+      } else if (b.t === 'p') {
+        out.push('<p class="' + (b.c || '') + '">' + esc(b.s) + '</p>');
+      } else if (b.t === 'li') {
+        out.push('<ul>' + b.s.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul>');
+      } else if (b.t === 'sign') {
+        out.push('<div class="sign">' + b.s.map(esc).join('<br>') + '</div>');
+      }
+    });
+    return out.join('\n');
+  }
+
+  function plain(blocks) {
+    return blocks.map(function (b) {
+      var s = Array.isArray(b.s) ? b.s.join('\n') : String(b.s || '');
+      return s.replace(/\[\[([^\]]+)\]\]/g, '[$1]');
+    }).join('\n\n');
+  }
+
+  return {
+    TEMPLATES: TEMPLATES, GROUNDS: GROUNDS, GROUNDS_TEXT: GROUNDS_TEXT,
+    num: num, rub: rub, ruDate: ruDate, isoToday: isoToday, days: days,
+    build: build, warnings: warnings, renderHTML: renderHTML, plain: plain,
+    placeholderCount: placeholderCount
+  };
+})();
+</script>
+
+<script id="ui-src">
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var IDS = ['orgName', 'orgAddr', 'fio', 'status', 'addr', 'phone', 'email',
+    'contractKind', 'contractNo', 'contractDate', 'contractSum',
+    'grounds', 'facts', 'claimSum', 'period', 'payoutReqs', 'notifyBank',
+    'priorDate', 'priorResult', 'attachments', 'docDate'];
+  var MONEY_IDS = ['contractSum', 'claimSum'];
+  var STORE = 'topus_claims_v1';
+  var state = { type: 'claim', blocks: [], attDirty: false };
+
+  /* ---------- инициализация ---------- */
+  function buildTabs() {
+    var wrap = $('tabs');
+    wrap.innerHTML = '';
+    Object.keys(Gen.TEMPLATES).forEach(function (key) {
+      var t = Gen.TEMPLATES[key];
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tab' + (key === 'claim' ? ' on' : '');
+      b.textContent = t.short;
+      b.setAttribute('data-key', key);
+      b.addEventListener('click', function () { setType(key); });
+      wrap.appendChild(b);
+    });
+  }
+
+  function buildGrounds() {
+    var sel = $('grounds');
+    sel.innerHTML = '';
+    var t = Gen.TEMPLATES[state.type];
+    t.grounds.forEach(function (g) {
+      var o = document.createElement('option');
+      o.value = g; o.textContent = Gen.GROUNDS[g];
+      sel.appendChild(o);
+    });
+    if (t.grounds.indexOf(sel.value) === -1) sel.value = t.grounds[0];
+  }
+
+  function defaultsFor(type) {
+    var d = {
+      claim: ['Претензия с отметкой о получении (или копия отчёта об отправке)', 'Кредитный договор и дополнительные соглашения', 'Выписка по счёту за спорный период', 'Расчёт заявленной суммы'],
+      cbr: ['Копия договора', 'Выписка по счёту', 'Копия ответа организации (если получен)', 'Переписка с организацией'],
+      ombud: ['Копия обращения в организацию с отметкой о направлении', 'Ответ организации или подтверждение направления', 'Копия договора', 'Расчёт заявленной суммы'],
+      insurance: ['Копия страхового полиса', 'Документ об уплате страховой премии', 'Реквизиты для возврата', 'Копия кредитного договора (если страхование при кредите)'],
+      recalc: ['Выписка по счёту', 'Собственный расчёт задолженности', 'График платежей', 'Копия договора']
+    };
+    return (d[type] || []).join('\n');
+  }
+
+  function setType(type, keep) {
+    state.type = type;
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) {
+      b.className = 'tab' + (b.getAttribute('data-key') === type ? ' on' : '');
+    });
+    buildGrounds();
+    toggleGroups();
+    if (!state.attDirty || !keep) {
+      $('attachments').value = defaultsFor(type);
+      state.attDirty = false;
+    }
+    update();
+  }
+
+  function toggleGroups() {
+    var t = Gen.TEMPLATES[state.type];
+    var active = { common: true, insurance: t.groups.indexOf('insurance') !== -1, ombud: t.groups.indexOf('ombud') !== -1, recalc: t.groups.indexOf('recalc') !== -1, org: true };
+    Array.prototype.forEach.call(document.querySelectorAll('[data-group]'), function (el) {
+      el.hidden = !active[el.getAttribute('data-group')];
+    });
+    $('orgLabel').textContent = t.recipient === 'org'
+      ? 'Организация (банк, МФО, страховщик)'
+      : 'Организация, на которую жалуетесь';
+    $('memo').innerHTML = '<ul>' + t.memo.map(function (m) { return '<li>' + m + '</li>'; }).join('') + '</ul>';
+  }
+
+  /* ---------- сбор данных ---------- */
+  function read() {
+    var o = { type: state.type };
+    IDS.forEach(function (id) {
+      var el = $(id);
+      o[id] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    return o;
+  }
+
+  function save(o) {
+    try { localStorage.setItem(STORE, JSON.stringify(o)); } catch (e) {}
+  }
+
+  function restore() {
+    var raw = null;
+    try { raw = localStorage.getItem(STORE); } catch (e) {}
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (e) { return null; }
+  }
+
+  /* ---------- отрисовка ---------- */
+  function update() {
+    var o = read();
+    state.blocks = Gen.build(o);
+    $('paper').innerHTML = Gen.renderHTML(state.blocks);
+    var w = Gen.warnings(o);
+    var box = $('warnbox');
+    if (w.length) {
+      box.hidden = false;
+      box.innerHTML = '<b>Проверьте перед отправкой</b><ul>' + w.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>';
+    } else {
+      box.hidden = true;
+      box.innerHTML = '';
+    }
+    var left = Gen.placeholderCount(state.blocks);
+    $('counter').innerHTML = left ? 'Осталось заполнить: <b>' + left + '</b>' : 'Документ заполнен';
+    save(o);
+  }
+
+  /* ---------- действия ---------- */
+  function copyText() {
+    var text = Gen.plain(state.blocks);
+    var done = function () { toast('Текст документа скопирован'); };
+    var fail = function () {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) { toast('Не удалось скопировать'); }
+      document.body.removeChild(ta);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fail);
+    else fail();
+  }
+
+  function toast(msg) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.className = 'show';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.className = ''; }, 1800);
+  }
+
+  function fmtMoney(ids) {
+    ids.forEach(function (id) {
+      var el = $(id);
+      el.addEventListener('blur', function () {
+        var v = Gen.num(el.value);
+        if (v > 0) el.value = Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      });
+    });
+  }
+
+  function reset() {
+    IDS.forEach(function (id) {
+      var el = $(id);
+      if (el.type === 'checkbox') el.checked = false;
+      else el.value = '';
+    });
+    try { localStorage.removeItem(STORE); } catch (e) {}
+    $('docDate').value = Gen.isoToday();
+    setType(state.type);
+    toast('Форма очищена');
+  }
+
+  function bind() {
+    buildTabs();
+    IDS.forEach(function (id) {
+      var el = $(id);
+      ['input', 'change'].forEach(function (ev) { el.addEventListener(ev, function () { if (id === 'attachments') state.attDirty = true; update(); }); });
+    });
+    fmtMoney(MONEY_IDS);
+
+    var saved = restore();
+    if (saved) {
+      IDS.forEach(function (id) {
+        var el = $(id);
+        if (saved[id] === undefined) return;
+        if (el.type === 'checkbox') el.checked = !!saved[id];
+        else el.value = saved[id];
+      });
+      state.attDirty = !!saved.attachments;
+      state.type = saved.type || 'claim';
+      setType(state.type, true);
+    } else {
+      $('docDate').value = Gen.isoToday();
+      setType('claim');
+    }
+
+    $('btnCopy').addEventListener('click', copyText);
+    $('btnPrint').addEventListener('click', function () { window.print(); });
+    $('btnReset').addEventListener('click', reset);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
+})();
+</script>
+</body>
+</html>

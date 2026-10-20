@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>TOPUS · Банковские инструменты для бизнеса</title>
+<meta name="description" content="Интерактивные инструменты по кредитам и спорам с банками: проверка права на кредитные каникулы по 276-ФЗ, расчёт паузы, генератор претензий и жалоб.">
+<style>
+*{box-sizing:border-box}
+html{background:#080f14;color:#edf5f6;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column}
+a{color:#83e5eb}
+.wrap{max-width:1060px;margin:0 auto;padding:0 22px;width:100%}
+header{padding:34px 0 8px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:11px;letter-spacing:2px;color:#59dce4;border-bottom:1px solid #1d323b;padding-bottom:14px}
+.top b{color:#fff;letter-spacing:3px}
+h1{font-size:40px;line-height:1.05;letter-spacing:-1px;margin:26px 0 12px;max-width:22ch}
+h1 em{font-style:normal;color:#59dce4}
+.lead{color:#afd5de;font-size:15.5px;line-height:1.5;max-width:70ch;margin:0}
+main{flex:1;padding:26px 0 10px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+a.card{display:flex;flex-direction:column;gap:9px;background:#101e26;border:1px solid #2a4450;border-radius:14px;padding:20px;text-decoration:none;color:inherit;transition:.18s;position:relative;overflow:hidden}
+a.card:hover{border-color:#59dce4;transform:translateY(-2px);box-shadow:0 12px 30px #0005}
+a.card:focus-visible{outline:2px solid #59dce4;outline-offset:3px}
+.kind{font-size:10.5px;letter-spacing:1.4px;color:#59dce4;font-weight:bold}
+a.card h2{font-size:19px;line-height:1.25;margin:0;letter-spacing:-.2px}
+a.card p{font-size:13.5px;line-height:1.5;color:#a9c6d0;margin:0}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:auto;padding-top:10px}
+.tag{font-size:11px;color:#8fb3bf;border:1px solid #2a4450;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.arrow{position:absolute;top:18px;right:18px;color:#3d5f6c;font-size:18px;transition:.18s}
+a.card:hover .arrow{color:#59dce4;transform:translateX(3px)}
+.info{margin-top:26px;border-top:1px solid #1d323b;padding-top:16px;font-size:12.5px;line-height:1.6;color:#7fa7b4}
+.info b{color:#cfe0e6}
+footer{padding:22px 0 30px;font-size:11.5px;color:#5f8593;line-height:1.55;border-top:1px solid #14262e;margin-top:18px}
+@media (max-width:620px){h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="top"><span><b>TOPUS</b> · БИЗНЕС / ФИНАНСЫ</span><span>ИНСТРУМЕНТЫ</span></div>
+    <h1>Банковские инструменты <em>без воды</em></h1>
+    <p class="lead">Проверьте право на кредитные каникулы, посчитайте стоимость паузы и соберите претензию в банк. Всё работает в браузере: данные никуда не отправляются, регистрация не нужна.</p>
+  </header>
+
+  <main>
+    <div class="cards">
+
+      <a class="card" href="credit-holidays/">
+        <span class="arrow">→</span>
+        <span class="kind">РАЗБОР · A4-ПЕЧАТЬ</span>
+        <h2>Кредитные каникулы для бизнеса</h2>
+        <p>Кому положена пауза по 276-ФЗ, почему отказывают и сколько она стоит: лимиты по категориям, условия статьи 3, капитализация процентов, порядок подачи требования.</p>
+        <div class="tags"><span class="tag">276-ФЗ</span><span class="tag">МСП и НПД</span><span class="tag">7 страниц</span></div>
+      </a>
+
+      <a class="card" href="credit-holidays/checker.html">
+        <span class="arrow">→</span>
+        <span class="kind">КАЛЬКУЛЯТОР</span>
+        <h2>Проверка права и расчёт паузы</h2>
+        <p>Анкета по требованиям закона — с вердиктом и списком причин отказа. Считает проценты за каникулы, рост долга, платёж после паузы и переплату за весь срок.</p>
+        <div class="tags"><span class="tag">чек-лист</span><span class="tag">сравнение сценариев</span><span class="tag">печать справки</span></div>
+      </a>
+
+      <a class="card" href="claims/">
+        <span class="arrow">→</span>
+        <span class="kind">ДОКУМЕНТЫ</span>
+        <h2>Претензии и жалобы</h2>
+        <p>Пять готовых форм с подстановкой данных: претензия банку, жалоба в Банк России, обращение к финуполномоченному, отказ от страховки, требование о перерасчёте.</p>
+        <div class="tags"><span class="tag">5 шаблонов</span><span class="tag">A4 / PDF</span><span class="tag">проверка сроков</span></div>
+      </a>
+
+    </div>
+
+    <div class="info">
+      <b>Как это устроено.</b> Каждая страница — автономный HTML-файл без сервера и внешних зависимостей: открывается офлайн, данные остаются в браузере, ничего не уходит на сторонние сервисы. Расчёты в калькуляторе учебные (ставка приведена к месячной, платёж аннуитетный), шаблоны — справочные: сроки и суммы проверяйте на дату подачи.
+    </div>
+  </main>
+
+  <footer>
+    TOPUS · бизнес и финансы. Материалы носят информационный характер и не заменяют юридическую консультацию.
+  </footer>
+</div>
+</body>
+</html>
