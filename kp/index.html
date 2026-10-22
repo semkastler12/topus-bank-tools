@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>TOPUS · Конструктор коммерческого предложения</title>
+<meta name="description" content="Конструктор КП: выберите услуги, цены, сроки, преимущества и условия — получите готовое коммерческое предложение для клиента и распечатайте его в PDF.">
+<style>
+:root{
+  --bg:#0b1013;--panel:#101a20;--line:#244149;--ink:#eef4f5;--muted:#9fb8c1;--dim:#71909c;
+  --acc:#59dce4;--acc2:#2f8f97;--bad:#ff7b7b;--ok:#6ee7a8;
+  --doc-ink:#161b1e;--doc-muted:#5d6b73;--doc-line:#d9e0e3;--doc-acc:#0e6e79;--doc-soft:#eef7f8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.45 Arial,Helvetica,sans-serif}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:#0d1b22;color:var(--ink);padding:8px 13px;transition:.15s}
+button:hover{border-color:var(--acc)}
+button.primary{background:var(--acc);border-color:var(--acc);color:#04171a;font-weight:bold}
+button.primary:hover{background:#7de9ee}
+button.mini{padding:4px 9px;font-size:12px}
+button.danger{color:#ff9b9b;border-color:#5a2a2a}
+input,select,textarea{width:100%;background:#0a1419;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 10px;font:inherit;font-size:13.5px;min-width:0}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 1px #59dce455}
+textarea{resize:vertical;min-height:64px}
+.wrap{display:grid;grid-template-columns:430px minmax(0,1fr);gap:18px;padding:16px;max-width:1500px;margin:0 auto}
+@media (max-width:1050px){.wrap{grid-template-columns:1fr}}
+.panel{display:flex;flex-direction:column;gap:12px}
+.brand{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:10px}
+.brand b{font-size:20px;letter-spacing:3px}
+.brand span{font-size:11px;letter-spacing:1.6px;color:var(--acc);text-transform:uppercase}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.card h2{font-size:11.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--acc);margin:0 0 9px;display:flex;justify-content:space-between;gap:8px}
+.card h2 small{text-transform:none;letter-spacing:0;color:var(--dim);font-weight:normal;font-size:11px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}
+.field span{letter-spacing:.2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+@media (max-width:520px){.grid2,.grid3{grid-template-columns:1fr}}
+.hint{font-size:11px;color:var(--dim);margin-top:6px;line-height:1.45}
+.catrow{display:flex;gap:8px;align-items:stretch;margin-bottom:8px}
+.catrow select{flex:1}
+.item{border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:8px;background:#0d171d}
+.item .top{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.item .top input{font-weight:bold}
+.item .row{display:grid;grid-template-columns:1.2fr .9fr .6fr auto;gap:6px;align-items:center}
+.item .lbl{font-size:10.5px;color:var(--dim);letter-spacing:.4px}
+.sum{font-size:12px;color:var(--muted);white-space:nowrap;text-align:right;padding:0 2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:#0d1b22;color:var(--muted);border-radius:999px;padding:5px 11px;font-size:12px;cursor:pointer;transition:.15s;text-align:left}
+.chip.on{background:#122b2f;border-color:var(--acc);color:#c9f2f5}
+.chip:hover{border-color:var(--acc2)}
+.cond{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--muted);margin:5px 0;cursor:pointer}
+.cond input{width:auto;margin-top:2px;accent-color:var(--acc)}
+.cond b{color:var(--ink);font-weight:normal}
+.totals{display:grid;grid-template-columns:1fr auto;gap:3px 10px;font-size:13px;color:var(--muted);margin-top:4px}
+.totals b{color:var(--ink);text-align:right;white-space:nowrap}
+.totals .grand{font-size:15px;color:var(--acc)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.stage{overflow:auto;background:#dfe6e9;border-radius:14px;padding:16px;display:flex;justify-content:flex-start}
+@media (max-width:1050px){.stage{padding:10px}}
+.doc{width:210mm;min-height:297mm;background:#fff;color:var(--doc-ink);padding:14mm 15mm 12mm;font:10pt/1.45 Arial,Helvetica,sans-serif;box-shadow:0 4px 18px #0002;flex:0 0 auto}
+.doc .head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;border-bottom:2px solid var(--doc-acc);padding-bottom:8px}
+.doc .logo{font-size:17pt;letter-spacing:4px;font-weight:bold;line-height:1}
+.doc .tagline{font-size:7.5pt;color:var(--doc-muted);letter-spacing:1.4px;text-transform:uppercase;margin-top:3px}
+.doc .meta{text-align:right;font-size:8.5pt;color:var(--doc-muted);line-height:1.5}
+.doc .meta b{color:var(--doc-ink);font-size:9.5pt;letter-spacing:.4px}
+.doc h1{font-size:17pt;letter-spacing:-.3px;margin:14px 0 3px}
+.doc .sub{color:var(--doc-muted);font-size:9.5pt;margin:0 0 10px}
+.doc h3{font-size:9pt;letter-spacing:1.2px;text-transform:uppercase;color:var(--doc-acc);margin:14px 0 6px}
+.doc .client{border:1px solid var(--doc-line);border-radius:6px;padding:8px 10px;font-size:9pt;line-height:1.55}
+.doc .client b{font-size:10pt}
+.doc table{width:100%;border-collapse:collapse;margin:4px 0 0;font-size:9pt}
+.doc th{text-align:left;font-size:7.5pt;letter-spacing:1px;text-transform:uppercase;color:var(--doc-muted);border-bottom:1.5px solid var(--doc-acc);padding:4px 6px;font-weight:normal}
+.doc td{border-bottom:1px solid var(--doc-line);padding:5px 6px;vertical-align:top}
+.doc td.r,.doc th.r{text-align:right;white-space:nowrap}
+.doc td.small{font-size:8pt;color:var(--doc-muted);display:block;line-height:1.35;margin-top:1px}
+.doc .sum-box{display:flex;justify-content:flex-end;margin-top:8px}
+.doc .sum-box table{width:62%}
+.doc .sum-box td{padding:3px 6px;border-bottom:1px solid var(--doc-line)}
+.doc .sum-box .grand td{font-size:11pt;font-weight:bold;border-bottom:2px solid var(--doc-acc);color:var(--doc-ink)}
+.doc .sum-box .grand td:last-child{color:var(--doc-acc)}
+.doc .cols{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;font-size:9pt}
+.doc ul{margin:0;padding-left:14px}
+.doc ul li{margin:0 0 2px}
+.doc .steps{display:grid;grid-template-columns:1fr 1fr;gap:5px 16px;font-size:9pt;margin:0;padding:0;list-style:none;counter-reset:st}
+.doc .steps li{counter-increment:st;padding-left:22px;position:relative}
+.doc .steps li:before{content:counter(st);position:absolute;left:0;top:0;width:15px;height:15px;border-radius:50%;background:var(--doc-soft);border:1px solid var(--doc-acc);color:var(--doc-acc);font-size:8pt;text-align:center;line-height:14px}
+.doc .note{background:var(--doc-soft);border-left:3px solid var(--doc-acc);padding:7px 10px;font-size:9pt;margin-top:10px}
+.doc .sign{margin-top:16px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font-size:9pt}
+.doc .sign .who b{font-size:10pt}
+.doc .sign .line{border-bottom:1px solid var(--doc-line);width:150px;margin-top:16px}
+.doc .foot{margin-top:14px;border-top:1px solid var(--doc-line);padding-top:6px;font-size:7.5pt;color:var(--doc-muted);line-height:1.5}
+.doc .empty{color:var(--doc-muted);font-style:italic;padding:20px 0}
+@media print{
+  @page{size:A4;margin:12mm 14mm}
+  html,body{background:#fff}
+  .wrap{display:block;padding:0;max-width:none}
+  .panel,.stage-note{display:none!important}
+  .stage{background:#fff;padding:0;border-radius:0;overflow:visible}
+  .doc{width:auto;min-height:0;padding:0;box-shadow:none}
+  .doc tr,.doc h1,.doc h3{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- ================= ПАНЕЛЬ ================= -->
+  <section class="panel" aria-label="Конструктор">
+    <div class="brand">
+      <div><b>TOPUS</b><br><span>конструктор КП</span></div>
+      <div style="text-align:right"><span>оффер за пару минут</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Клиент</h2>
+      <div class="grid2">
+        <label class="field"><span>Компания / имя клиента</span><input id="c_company" placeholder="ООО «Ромашка»"></label>
+        <label class="field"><span>Контактное лицо</span><input id="c_contact" placeholder="Иван Иванов"></label>
+        <label class="field"><span>Телефон или email</span><input id="c_info" placeholder="+7 900 000-00-00"></label>
+        <label class="field"><span>Кто готовит КП</span><input id="c_manager" placeholder="Ваше имя"></label>
+        <label class="field"><span>Дата</span><input type="date" id="c_date"></label>
+        <label class="field"><span>Номер КП</span><input id="c_number" placeholder="КП-0000"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Услуги и цены <small id="itemsCount"></small></h2>
+      <div class="catrow">
+        <select id="catalog" aria-label="Каталог услуг"></select>
+        <button type="button" id="addFromCatalog">Добавить</button>
+      </div>
+      <div id="items"></div>
+      <div class="actions" style="margin-top:2px">
+        <button type="button" class="mini" id="addCustom">+ Своя услуга</button>
+      </div>
+      <div class="grid3" style="margin-top:10px">
+        <label class="field"><span>Скидка, %</span><input type="number" id="c_discount" min="0" max="90" step="1" value="0"></label>
+        <label class="field"><span>Предоплата</span>
+          <select id="c_prepay">
+            <option value="0">без предоплаты</option>
+            <option value="30">30 %</option>
+            <option value="50" selected>50 %</option>
+            <option value="100">100 %</option>
+          </select>
+        </label>
+        <label class="field"><span>Действует, дней</span><input type="number" id="c_valid" min="1" max="120" step="1" value="14"></label>
+      </div>
+      <div class="grid2" style="margin-top:8px">
+        <label class="field"><span>Старт работ</span><input type="date" id="c_start"></label>
+        <label class="field"><span>НДС</span>
+          <select id="c_vat">
+            <option value="none" selected>без НДС (УСН)</option>
+            <option value="20">НДС 20 %</option>
+          </select>
+        </label>
+      </div>
+      <div class="totals" style="margin-top:10px">
+        <span>Сумма</span><b id="t_sub">0 ₽</b>
+        <span>Скидка</span><b id="t_disc">0 ₽</b>
+        <span>Итого к оплате</span><b class="grand" id="t_total">0 ₽</b>
+        <span>Предоплата</span><b id="t_pre">0 ₽</b>
+        <span>Остаток</span><b id="t_rest">0 ₽</b>
+      </div>
+      <div class="hint">Цены в каталоге — примеры под банковские услуги, замените своими. Всё сохраняется в браузере автоматически.</div>
+    </div>
+
+    <div class="card">
+      <h2>Преимущества <small>нажмите, чтобы включить или выключить</small></h2>
+      <div class="chips" id="advs"></div>
+      <div class="catrow" style="margin:8px 0 0">
+        <input id="advNew" placeholder="Своё преимущество">
+        <button type="button" class="mini" id="advAdd">Добавить</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Условия</h2>
+      <div id="conds"></div>
+      <label class="field" style="margin-top:8px"><span>Примечание в КП (необязательно)</span>
+        <textarea id="c_note" placeholder="Например: цены действуют при полном пакете документов."></textarea>
+      </label>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="printBtn">Печать / PDF</button>
+      <button type="button" id="copyBtn">Копировать текст</button>
+      <button type="button" class="danger" id="resetBtn">Сбросить</button>
+    </div>
+  </section>
+
+  <!-- ================= ДОКУМЕНТ ================= -->
+  <section>
+    <div class="stage">
+      <div class="doc" id="doc"></div>
+    </div>
+    <div class="stage-note" style="font-size:11.5px;color:var(--dim);margin-top:8px;line-height:1.5">
+      Предпросмотр — так предложение напечатается на A4. Кнопка «Печать / PDF» → в диалоге выберите «Сохранить как PDF».
+    </div>
+  </section>
+</div>
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ================= утилиты ================= */
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+  var fmt = function (n) {
+    return Number(n || 0).toLocaleString('ru-RU') + ' ₽';
+  };
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+  var uniq = 0;
+  var uid = function () { uniq++; return 'i' + Date.now().toString(36) + uniq.toString(36); };
+
+  function dateRu(iso) {
+    if (!iso) return '';
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+    return m ? m[3] + '.' + m[2] + '.' + m[1] : iso;
+  }
+  function addDays(iso, days) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    if (!m) return '';
+    var d = new Date(+m[1], +m[2] - 1, +m[3]);
+    d.setDate(d.getDate() + (Number(days) || 0));
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+  function todayIso() {
+    var d = new Date();
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+
+  /* ================= сумма прописью ================= */
+  var ONES = ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'];
+  var ONES_F = ['', 'одна', 'две', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'];
+  var TEENS = ['десять', 'одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 'пятнадцать', 'шестнадцать', 'семнадцать', 'восемнадцать', 'девятнадцать'];
+  var TENS = ['', '', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'];
+  var HUND = ['', 'сто', 'двести', 'триста', 'четыреста', 'пятьсот', 'шестьсот', 'семьсот', 'восемьсот', 'девятьсот'];
+
+  function plural(n, forms) {
+    var n100 = n % 100, n10 = n % 10;
+    if (n100 >= 11 && n100 <= 14) return forms[2];
+    if (n10 === 1) return forms[0];
+    if (n10 >= 2 && n10 <= 4) return forms[1];
+    return forms[2];
+  }
+  function triadWords(n, female) {
+    var arr = female ? ONES_F : ONES;
+    var out = [];
+    out.push(HUND[Math.floor(n / 100)]);
+    var r = n % 100;
+    if (r >= 10 && r < 20) out.push(TEENS[r - 10]);
+    else {
+      out.push(TENS[Math.floor(r / 10)]);
+      out.push(arr[r % 10]);
+    }
+    return out.filter(Boolean).join(' ');
+  }
+  function rublText(sum) {
+    sum = Math.round(sum * 100) / 100;
+    var rub = Math.floor(sum);
+    var kop = Math.round((sum - rub) * 100);
+    if (kop === 100) { rub += 1; kop = 0; }
+    var groups = [];
+    var n = rub;
+    if (n === 0) groups = ['ноль'];
+    else {
+      var scaled = [
+        null,
+        { forms: ['тысяча', 'тысячи', 'тысяч'], female: true },
+        { forms: ['миллион', 'миллиона', 'миллионов'], female: false },
+        { forms: ['миллиард', 'миллиарда', 'миллиардов'], female: false }
+      ];
+      var parts = [];
+      var idx = 0;
+      while (n > 0 && idx < 4) {
+        var part = n % 1000;
+        n = Math.floor(n / 1000);
+        if (part) {
+          var sc = scaled[idx];
+          var w = triadWords(part, sc ? sc.female : false);
+          if (sc) w += ' ' + plural(part, sc.forms);
+          parts.unshift(w.trim());
+        }
+        idx++;
+      }
+      groups = parts;
+    }
+    var text = groups.join(' ');
+    text = text.charAt(0).toUpperCase() + text.slice(1);
+    return text + ' ' + plural(rub, ['рубль', 'рубля', 'рублей']) + ' ' + pad(kop) + ' ' + plural(kop, ['копейка', 'копейки', 'копеек']);
+  }
+
+  /* ================= данные ================= */
+  var LS_DRAFT = 'topus_kp_draft_v1';
+
+  var DEFAULT_CATALOG = [
+    { id: 'c1', title: 'Консультация по кредиту', note: '60 минут: разбор ситуации и план действий', duration: '1 раб. день', price: 2000 },
+    { id: 'c2', title: 'Разбор права на кредитные каникулы', note: 'проверка по 276-ФЗ, расчёт паузы и нового платежа', duration: '1–2 раб. дня', price: 3000 },
+    { id: 'c3', title: 'Заявление на кредитные каникулы', note: 'подготовка и подача в банк', duration: '2 раб. дня', price: 5000 },
+    { id: 'c4', title: 'Претензия банку', note: 'ошибочный перевод, комиссии, навязанная страховка', duration: '2 раб. дня', price: 4000 },
+    { id: 'c5', title: 'Жалоба финансовому уполномоченному', note: 'составление и подача', duration: '3 раб. дня', price: 6000 },
+    { id: 'c6', title: 'Сопровождение спора с банком', note: 'переписка, документы, контроль сроков', duration: 'до 30 дней', price: 25000 }
+  ];
+
+  var DEFAULT_ADV = [
+    { t: 'Работаем по договору — все условия письменно', on: true },
+    { t: 'Фиксированная цена: не меняется в процессе', on: true },
+    { t: 'Проверяем документы до подачи', on: true },
+    { t: 'Отвечаем в мессенджерах в течение рабочего дня', on: true },
+    { t: 'Объясняем простым языком, без юридического тумана', on: true },
+    { t: 'Работаем дистанционно по всей России', on: false },
+    { t: 'Даём понятный план и сроки до оплаты', on: false },
+    { t: 'Поддержка после результата', on: false }
+  ];
+
+  var DEFAULT_CONDS = [
+    { id: 'contract', t: 'Работаем по договору, условия фиксируем в нём', on: true },
+    { id: 'fixed', t: 'Цена не меняется после подписания', on: true },
+    { id: 'edits', t: 'Две бесплатные правки по результату', on: true },
+    { id: 'privacy', t: 'Данные клиента не передаём третьим лицам', on: true },
+    { id: 'offer', t: 'Предложение является офертой (ст. 435 ГК РФ)', on: false },
+    { id: 'force', t: 'Форс-мажор — в порядке ст. 401 ГК РФ', on: false }
+  ];
+
+  var sumEls = {};
+
+  var S = {
+    client: '', contact: '', info: '', manager: '',
+    date: todayIso(), number: '',
+    items: [],
+    discount: 0, prepay: 50, validDays: 14, startDate: '', vat: 'none',
+    advantages: [],
+    conditions: [],
+    note: ''
+  };
+
+  function blankItem() {
+    return { uid: uid(), title: '', note: '', duration: '', price: 0, qty: 1 };
+  }
+
+  function loadDraft() {
+    var raw = null;
+    try { raw = localStorage.getItem(LS_DRAFT); } catch (e) { return; }
+    if (!raw) return;
+    try {
+      var d = JSON.parse(raw);
+      if (!d || typeof d !== 'object') return;
+      ['client', 'contact', 'info', 'manager', 'date', 'number', 'startDate', 'vat', 'note'].forEach(function (k) {
+        if (typeof d[k] === 'string' && d[k]) S[k] = d[k];
+      });
+      if (typeof d.discount === 'number') S.discount = d.discount;
+      if (typeof d.prepay === 'number') S.prepay = d.prepay;
+      if (typeof d.validDays === 'number') S.validDays = d.validDays;
+      if (Array.isArray(d.items)) {
+        S.items = d.items.map(function (it) {
+          return {
+            uid: it.uid || uid(),
+            title: String(it.title || ''),
+            note: String(it.note || ''),
+            duration: String(it.duration || ''),
+            price: Number(it.price) || 0,
+            qty: Number(it.qty) || 1
+          };
+        });
+      }
+      if (Array.isArray(d.advantages)) S.advantages = d.advantages.filter(function (a) { return a && a.t; }).map(function (a) { return { t: String(a.t), on: !!a.on }; });
+      if (Array.isArray(d.conditions)) S.conditions = d.conditions.filter(function (c) { return c && typeof c.id === 'string'; }).map(function (c) { return { id: c.id, on: !!c.on, t: String(c.t || '') }; });
+    } catch (e) {}
+  }
+
+  function saveDraft() {
+    try { localStorage.setItem(LS_DRAFT, JSON.stringify(S)); } catch (e) {}
+  }
+
+  /* ================= инициализация данных ================= */
+  function initData() {
+    loadDraft();
+    if (!S.advantages.length) S.advantages = DEFAULT_ADV.map(function (a) { return { t: a.t, on: a.on }; });
+    if (!S.conditions.length) S.conditions = DEFAULT_CONDS.map(function (c) { return { id: c.id, t: c.t, on: c.on }; });
+    if (!S.date) S.date = todayIso();
+    if (!S.items.length) {
+      S.items = [{
+        uid: uid(),
+        title: DEFAULT_CATALOG[2].title,
+        note: DEFAULT_CATALOG[2].note,
+        duration: DEFAULT_CATALOG[2].duration,
+        price: DEFAULT_CATALOG[2].price,
+        qty: 1
+      }];
+    }
+  }
+
+  /* ================= расчёты ================= */
+  function calc() {
+    var sub = 0;
+    S.items.forEach(function (it) {
+      var p = Number(it.price) || 0;
+      var q = Number(it.qty) || 0;
+      if (p > 0 && q > 0) sub += p * q;
+    });
+    var discountPct = Math.min(90, Math.max(0, Number(S.discount) || 0));
+    var disc = Math.round(sub * discountPct) / 100;
+    var total = sub - disc;
+    if (total < 0) total = 0;
+    var pre = Math.round(total * (Number(S.prepay) || 0)) / 100;
+    return { sub: sub, disc: disc, total: total, pre: pre, rest: total - pre };
+  }
+
+  /* ================= DOM: каталог и услуги ================= */
+  function fillCatalog() {
+    var sel = $('catalog');
+    sel.innerHTML = '';
+    DEFAULT_CATALOG.forEach(function (c) {
+      var o = document.createElement('option');
+      o.value = c.id;
+      o.textContent = c.title + ' — ' + fmt(c.price);
+      sel.appendChild(o);
+    });
+  }
+
+  function addCatalogItem(id) {
+    var c = DEFAULT_CATALOG.filter(function (x) { return x.id === id; })[0];
+    if (!c) return;
+    S.items.push({ uid: uid(), title: c.title, note: c.note, duration: c.duration, price: c.price, qty: 1 });
+    renderItems();
+    update();
+  }
+
+  function itemInput(val, cls, ph, type) {
+    var el = document.createElement('input');
+    el.className = cls;
+    el.value = val;
+    el.placeholder = ph || '';
+    if (type) el.type = type;
+    return el;
+  }
+
+  function renderItems() {
+    var box = $('items');
+    box.innerHTML = '';
+    $('itemsCount').textContent = S.items.length ? 'в списке: ' + S.items.length : '';
+    if (!S.items.length) {
+      var e = document.createElement('div');
+      e.className = 'hint';
+      e.textContent = 'Пока пусто. Выберите услугу в каталоге выше или добавьте свою.';
+      box.appendChild(e);
+      return;
+    }
+    sumEls = {};
+    S.items.forEach(function (it, i) {
+      var row = document.createElement('div');
+      row.className = 'item';
+
+      var top = document.createElement('div');
+      top.className = 'top';
+      var title = itemInput(it.title, 'itTitle', 'Название услуги');
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'mini danger';
+      del.textContent = '✕';
+      del.title = 'Убрать услугу';
+      del.addEventListener('click', function () {
+        S.items.splice(i, 1);
+        renderItems();
+        update();
+      });
+      title.addEventListener('input', function () { it.title = title.value; update(); });
+      top.appendChild(title);
+      top.appendChild(del);
+
+      var note = itemInput(it.note, 'itNote', 'Короткое описание для клиента');
+      note.style.marginBottom = '6px';
+      note.addEventListener('input', function () { it.note = note.value; update(); });
+
+      var grid = document.createElement('div');
+      grid.className = 'row';
+
+      var fDur = document.createElement('label');
+      fDur.className = 'field';
+      fDur.innerHTML = '<span>Срок</span>';
+      var dur = itemInput(it.duration, 'itDur', '2 раб. дня');
+      dur.addEventListener('input', function () { it.duration = dur.value; update(); });
+      fDur.appendChild(dur);
+
+      var fPrice = document.createElement('label');
+      fPrice.className = 'field';
+      fPrice.innerHTML = '<span>Цена, ₽</span>';
+      var price = itemInput(it.price, 'itPrice', '0', 'number');
+      price.min = '0';
+      price.step = '100';
+      price.addEventListener('input', function () { it.price = Number(price.value) || 0; update(); });
+      fPrice.appendChild(price);
+
+      var fQty = document.createElement('label');
+      fQty.className = 'field';
+      fQty.innerHTML = '<span>Кол-во</span>';
+      var qty = itemInput(it.qty, 'itQty', '1', 'number');
+      qty.min = '1';
+      qty.step = '1';
+      qty.addEventListener('input', function () { it.qty = Math.max(1, Number(qty.value) || 1); update(); });
+      fQty.appendChild(qty);
+
+      var sum = document.createElement('div');
+      sum.className = 'sum';
+      sum.textContent = '';
+
+      grid.appendChild(fDur);
+      grid.appendChild(fPrice);
+      grid.appendChild(fQty);
+      grid.appendChild(sum);
+
+      row.appendChild(top);
+      row.appendChild(note);
+      row.appendChild(grid);
+      box.appendChild(row);
+      sumEls[it.uid] = sum;
+    });
+    updateItemSums();
+  }
+
+  function updateItemSums() {
+    S.items.forEach(function (it) {
+      var el = sumEls[it.uid];
+      if (!el) return;
+      var p = Number(it.price) || 0;
+      var q = Number(it.qty) || 0;
+      el.textContent = p && q ? fmt(p * q) : '';
+    });
+  }
+
+  /* ================= DOM: преимущества и условия ================= */
+  function renderAdvs() {
+    var box = $('advs');
+    box.innerHTML = '';
+    S.advantages.forEach(function (a, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip' + (a.on ? ' on' : '');
+      b.textContent = a.t;
+      b.title = a.on ? 'Выключить' : 'Включить';
+      b.addEventListener('click', function () {
+        a.on = !a.on;
+        b.className = 'chip' + (a.on ? ' on' : '');
+        update();
+      });
+      box.appendChild(b);
+    });
+  }
+
+  function renderConds() {
+    var box = $('conds');
+    box.innerHTML = '';
+    S.conditions.forEach(function (c) {
+      var lab = document.createElement('label');
+      lab.className = 'cond';
+      var inp = document.createElement('input');
+      inp.type = 'checkbox';
+      inp.checked = !!c.on;
+      inp.addEventListener('change', function () { c.on = inp.checked; update(); });
+      var t = document.createElement('span');
+      t.innerHTML = esc(c.t);
+      lab.appendChild(inp);
+      lab.appendChild(t);
+      box.appendChild(lab);
+    });
+  }
+
+  /* ================= DOM: итоги в панели ================= */
+  function renderTotals() {
+    var c = calc();
+    $('t_sub').textContent = fmt(c.sub);
+    $('t_disc').textContent = c.disc > 0 ? '−' + fmt(c.disc) : fmt(0);
+    $('t_total').textContent = fmt(c.total);
+    $('t_pre').textContent = c.pre > 0 ? fmt(c.pre) : '—';
+    $('t_rest').textContent = c.total > 0 ? fmt(c.rest) : '—';
+    updateItemSums();
+  }
+
+  /* ================= предпросмотр ================= */
+  function buildDoc() {
+    var c = calc();
+    var items = S.items.filter(function (it) { return String(it.title || '').trim() && Number(it.price) > 0; });
+    var validTo = S.validDays ? addDays(S.date, S.validDays) : '';
+    var num = S.number || ('КП-' + String(S.date || todayIso()).replace(/-/g, ''));
+
+    var company = S.client || '—';
+    var contact = S.contact || '';
+    var info = S.info || '';
+    var manager = S.manager || 'менеджер TOPUS';
+
+    var advs = S.advantages.filter(function (a) { return a.on && a.t; }).map(function (a) { return '<li>' + esc(a.t) + '</li>'; }).join('');
+    var conds = S.conditions.filter(function (x) { return x.on && x.t; }).map(function (x) { return '<li>' + esc(x.t) + '</li>'; }).join('');
+
+    var rows = items.map(function (it) {
+      var sum = (Number(it.price) || 0) * (Number(it.qty) || 1);
+      var note = it.note ? '<span class="small">' + esc(it.note) + '</span>' : '';
+      return '<tr><td>' + esc(it.title) + note + '</td>' +
+        '<td class="r">' + esc(it.duration || '—') + '</td>' +
+        '<td class="r">' + fmt(it.price) + '</td>' +
+        '<td class="r">' + esc(it.qty || 1) + '</td>' +
+        '<td class="r">' + fmt(sum) + '</td></tr>';
+    }).join('');
+
+    var tableBlock = items.length
+      ? '<table><thead><tr><th>Услуга</th><th class="r">Срок</th><th class="r">Цена</th><th class="r">Кол-во</th><th class="r">Сумма</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+        '<div class="sum-box"><table><tbody>' +
+        '<tr><td>Сумма</td><td class="r">' + fmt(c.sub) + '</td></tr>' +
+        (c.disc > 0 ? '<tr><td>Скидка ' + esc(S.discount) + ' %</td><td class="r">−' + fmt(c.disc) + '</td></tr>' : '') +
+        '<tr class="grand"><td>Итого</td><td class="r">' + fmt(c.total) + '</td></tr>' +
+        (c.pre > 0 ? '<tr><td>Предоплата (' + esc(S.prepay) + ' %)</td><td class="r">' + fmt(c.pre) + '</td></tr>' +
+          '<tr><td>Остаток после результата</td><td class="r">' + fmt(c.rest) + '</td></tr>' : '') +
+        '</tbody></table></div>' +
+        '<p style="font-size:8.5pt;color:#5d6b73;margin:4px 0 0">' + esc(rublText(c.total)) + '</p>'
+      : '<p class="empty">Добавьте услуги слева — предложение соберётся здесь.</p>';
+
+    var clientBlock = (S.client || S.contact || S.info)
+      ? '<div class="client"><b>' + esc(company) + '</b>' +
+        (contact ? '<br>Контакт: ' + esc(contact) : '') +
+        (info ? ' · ' + esc(info) : '') + '</div>'
+      : '<div class="client" style="color:#5d6b73">Клиент не указан — заполните поля слева</div>';
+
+    var payText = '';
+    if (c.total > 0) {
+      if (c.pre > 0) payText = 'Предоплата ' + esc(S.prepay) + ' % — ' + fmt(c.pre) + ' при согласовании, остаток — ' + fmt(c.rest) + ' после результата.';
+      else payText = 'Оплата после сдачи результата.';
+      if (Number(S.vat) === 20) payText += ' НДС 20 % включён в сумму.';
+    }
+
+    return '' +
+      '<div class="head"><div><div class="logo">TOPUS</div><div class="tagline">банковские инструменты для бизнеса</div></div>' +
+      '<div class="meta"><b>Коммерческое предложение</b><br>№ ' + esc(num) + ' от ' + dateRu(S.date) +
+      (validTo ? '<br>действует до ' + dateRu(validTo) : '') + '</div></div>' +
+      '<h1>Коммерческое предложение</h1>' +
+      '<p class="sub">Услуги, сроки и условия' + (S.client ? ' для ' + esc(S.client) : '') + '</p>' +
+      clientBlock +
+      '<h3>Что предлагаем</h3>' + tableBlock +
+      (advs ? '<h3>Почему мы</h3><ul class="cols">' + advs + '</ul>' : '') +
+      (conds ? '<h3>Условия</h3><ul class="cols">' + conds + '</ul>' : '') +
+      (S.note ? '<div class="note">' + esc(S.note) + '</div>' : '') +
+      '<h3>Как будем работать</h3><ol class="steps">' +
+      '<li>Созвон и бриф: уточняем задачу и сроки.</li>' +
+      '<li>Готовим план и фиксируем цену в договоре.</li>' +
+      '<li>Выполняем работу и показываем промежуточный результат.</li>' +
+      '<li>Передаём результат и документы, остаёмся на связи.</li></ol>' +
+      '<div class="sign"><div class="who"><div>С уважением,<br><b>' + esc(manager) + '</b>' + (payText ? '<br><span style="font-size:8.5pt;color:#5d6b73">' + payText + '</span>' : '') + '</div></div>' +
+      '<div style="text-align:right;color:#5d6b73;font-size:8.5pt">Подпись<br><div class="line"></div></div></div>' +
+      '<div class="foot">' + (S.conditions.some(function (x) { return x.id === 'offer' && x.on; })
+        ? 'Предложение является офертой согласно ст. 435 ГК РФ и действительно до ' + dateRu(validTo) + '. '
+        : 'Предложение не является публичной офертой. ') +
+      'Сроки указаны по каждой услуге; старт работ — ' + (S.startDate ? dateRu(S.startDate) : 'после оплаты предоплаты') + '. ' +
+      'Государственные сборы и пошлины оплачиваются отдельно, если применимо.</div>';
+  }
+
+  function renderDoc() {
+    $('doc').innerHTML = buildDoc();
+  }
+
+  /* ================= обновление ================= */
+  function update() {
+    renderTotals();
+    renderDoc();
+    saveDraft();
+  }
+
+  /* ================= привязка полей ================= */
+  function bind() {
+    [['c_company', 'client'], ['c_contact', 'contact'], ['c_info', 'info'], ['c_manager', 'manager'],
+     ['c_date', 'date'], ['c_number', 'number'], ['c_note', 'note']].forEach(function (p) {
+      var el = $(p[0]);
+      el.value = S[p[1]] || '';
+      el.addEventListener('input', function () { S[p[1]] = el.value; update(); });
+    });
+
+    var d = $('c_discount');
+    d.value = S.discount;
+    d.addEventListener('input', function () { S.discount = Math.max(0, Math.min(90, Number(d.value) || 0)); update(); });
+
+    var p = $('c_prepay');
+    p.value = String(S.prepay);
+    p.addEventListener('change', function () { S.prepay = Number(p.value) || 0; update(); });
+
+    var v = $('c_valid');
+    v.value = S.validDays;
+    v.addEventListener('input', function () { S.validDays = Math.max(1, Number(v.value) || 1); update(); });
+
+    var st = $('c_start');
+    st.value = S.startDate || '';
+    st.addEventListener('change', function () { S.startDate = st.value; update(); });
+
+    var vat = $('c_vat');
+    vat.value = S.vat;
+    vat.addEventListener('change', function () { S.vat = vat.value; update(); });
+
+    $('addFromCatalog').addEventListener('click', function () { addCatalogItem($('catalog').value); });
+    $('addCustom').addEventListener('click', function () {
+      S.items.push(blankItem());
+      renderItems();
+      update();
+    });
+    $('advAdd').addEventListener('click', function () {
+      var v2 = $('advNew').value.trim();
+      if (!v2) return;
+      S.advantages.push({ t: v2, on: true });
+      $('advNew').value = '';
+      renderAdvs();
+      update();
+    });
+    $('advNew').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('advAdd').click(); });
+
+    $('printBtn').addEventListener('click', function () {
+      saveDraft();
+      window.print();
+    });
+    $('copyBtn').addEventListener('click', copyText);
+    $('resetBtn').addEventListener('click', function () {
+      if (!window.confirm('Сбросить предложение и начать заново?')) return;
+      try { localStorage.removeItem(LS_DRAFT); } catch (e) {}
+      S.client = ''; S.contact = ''; S.info = ''; S.manager = '';
+      S.date = todayIso(); S.number = ''; S.discount = 0; S.prepay = 50; S.validDays = 14;
+      S.startDate = ''; S.vat = 'none'; S.note = '';
+      S.items = []; S.advantages = []; S.conditions = [];
+      initData();
+      syncFields();
+      renderItems(); renderAdvs(); renderConds();
+      update();
+      toast('Сброшено');
+    });
+  }
+
+  function syncFields() {
+    $('c_company').value = S.client || '';
+    $('c_contact').value = S.contact || '';
+    $('c_info').value = S.info || '';
+    $('c_manager').value = S.manager || '';
+    $('c_date').value = S.date || '';
+    $('c_number').value = S.number || '';
+    $('c_note').value = S.note || '';
+    $('c_discount').value = S.discount;
+    $('c_prepay').value = String(S.prepay);
+    $('c_valid').value = S.validDays;
+    $('c_start').value = S.startDate || '';
+    $('c_vat').value = S.vat;
+  }
+
+  /* ================= копирование текста ================= */
+  function plainText() {
+    var c = calc();
+    var items = S.items.filter(function (it) { return String(it.title || '').trim() && Number(it.price) > 0; });
+    var validTo = S.validDays ? addDays(S.date, S.validDays) : '';
+    var lines = [];
+    lines.push('TOPUS — КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ');
+    lines.push('№ ' + (S.number || '—') + ' от ' + dateRu(S.date) + (validTo ? ' (действует до ' + dateRu(validTo) + ')' : ''));
+    lines.push('');
+    lines.push('Для: ' + (S.client || '—') + (S.contact ? ' (' + S.contact + ')' : '') + (S.info ? ', ' + S.info : ''));
+    lines.push('');
+    items.forEach(function (it, i) {
+      lines.push((i + 1) + '. ' + it.title + (it.note ? ' — ' + it.note : '') + ' | ' + (it.duration || '') + ' | ' + fmt(it.price) + ' x ' + (it.qty || 1) + ' = ' + fmt(it.price * (it.qty || 1)));
+    });
+    lines.push('');
+    lines.push('Сумма: ' + fmt(c.sub) + (c.disc > 0 ? '; скидка ' + S.discount + '%: −' + fmt(c.disc) : ''));
+    lines.push('Итого: ' + fmt(c.total) + ' (' + rublText(c.total) + ')');
+    if (c.pre > 0) lines.push('Предоплата ' + S.prepay + '%: ' + fmt(c.pre) + '; остаток: ' + fmt(c.rest));
+    lines.push('');
+    var advs = S.advantages.filter(function (a) { return a.on && a.t; });
+    if (advs.length) {
+      lines.push('Почему мы:');
+      advs.forEach(function (a) { lines.push('• ' + a.t); });
+      lines.push('');
+    }
+    var conds = S.conditions.filter(function (x) { return x.on && x.t; });
+    if (conds.length) {
+      lines.push('Условия:');
+      conds.forEach(function (x) { lines.push('• ' + x.t); });
+      lines.push('');
+    }
+    if (S.note) lines.push('Примечание: ' + S.note + '\n');
+    lines.push('С уважением, ' + (S.manager || 'менеджер TOPUS'));
+    return lines.join('\n');
+  }
+
+  function copyText() {
+    var text = plainText();
+    var done = function (ok) { toast(ok ? 'Текст КП скопирован' : 'Не удалось скопировать', !ok); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }).catch(function () { done(fallback(text)); });
+    } else done(fallback(text));
+  }
+  function fallback(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+
+  /* ================= уведомление ================= */
+  function toast(msg, bad) {
+    var t = $('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.className = bad ? 'bad show' : 'show';
+    clearTimeout(t._t);
+    t._t = setTimeout(function () { t.className = bad ? 'bad' : ''; }, 2400);
+  }
+
+  /* ================= запуск ================= */
+  function init() {
+    fillCatalog();
+    initData();
+    bind();
+    syncFields();
+    renderItems();
+    renderAdvs();
+    renderConds();
+    update();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+<style>
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(16px);background:#12281f;border:1px solid #22513c;color:#c8f2dc;padding:9px 15px;border-radius:9px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:50;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.bad{background:#2a1616;border-color:#55262a;color:#ffc9c9}
+</style>
+</body>
+</html>

@@ -1,0 +1,1421 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Анкета DV — помощник оператора</title>
+<meta name="description" content="Локальный помощник для фотоателье: сбор данных заявки DV, проверка ошибок и готовый блок для внесения на dvprogram.state.gov. Данные хранятся только в браузере.">
+<style>
+*{box-sizing:border-box}
+html{background:#0b1013;color:#eef4f5;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;line-height:1.45;font-size:15px}
+a{color:#7fdbe2}
+h1,h2,h3{margin:0;letter-spacing:-.2px}
+.wrap{max-width:1240px;margin:0 auto;padding:20px}
+header.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;border-bottom:1px solid #1e2f37;padding-bottom:14px}
+.brand{font-size:11px;letter-spacing:2.4px;color:#4fd0d8}
+.brand b{color:#fff}
+h1{font-size:26px;margin:6px 0 4px}
+.sub{color:#9fb8c1;font-size:13px;max-width:78ch;margin:0}
+.meta{font-size:11.5px;color:#7d9aa5;text-align:right;line-height:1.5}
+.banner{margin:14px 0 0;background:#0f2129;border:1px solid #244149;border-left:3px solid #4fd0d8;padding:10px 14px;border-radius:10px;font-size:12.5px;color:#c7dce2;line-height:1.5}
+.layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:16px;align-items:start;margin-top:14px}
+@media (max-width:980px){.layout{grid-template-columns:1fr}}
+.card{background:#0f1a20;border:1px solid #244149;border-radius:14px;padding:15px 15px 13px;margin-bottom:13px}
+.card h2{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#4fd0d8;margin-bottom:9px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.card h2 small{text-transform:none;letter-spacing:0;font-weight:normal;color:#7d9aa5;font-size:11.5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+@media (max-width:620px){.grid2,.grid3{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:#9fb8c1;min-width:0}
+.field > span{letter-spacing:.2px}
+.field em{font-style:normal;color:#6d8b96;font-size:11.5px}
+input,select,textarea{width:100%;background:#0a1419;border:1px solid #244149;color:#eef4f5;border-radius:9px;padding:9px 11px;font:inherit;font-size:13.5px;min-width:0}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#4fd0d8;box-shadow:0 0 0 1px #4fd0d855}
+input.bad,select.bad{border-color:#ff6b6b;box-shadow:0 0 0 1px #ff6b6b55}
+input[type=checkbox]{width:auto;accent-color:#4fd0d8}
+.with-btn{display:flex;gap:6px}
+.with-btn input{flex:1}
+button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid #244149;background:#0d1b22;color:#eef4f5;padding:9px 13px;transition:.15s;white-space:nowrap}
+button:hover{border-color:#4fd0d8}
+button.primary{background:#4fd0d8;border-color:#4fd0d8;color:#04161a;font-weight:bold}
+button.primary:hover{background:#7ee3e8}
+button.mini{padding:4px 9px;font-size:12px}
+button.danger{color:#ff9b9b;border-color:#5a2a2a}
+button[hidden]{display:none!important}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.actions .spacer{flex:1}
+.hint{font-size:11.5px;color:#7d9aa5;margin-top:6px;line-height:1.5}
+.chk{display:flex;gap:8px;align-items:center;font-size:12.5px;color:#9fb8c1}
+.child-row{display:grid;grid-template-columns:1.1fr 1fr .9fr .9fr .8fr 1.1fr 1.1fr auto;gap:7px;align-items:end;border:1px dashed #244149;border-radius:10px;padding:9px;margin-bottom:8px}
+@media (max-width:980px){.child-row{grid-template-columns:1fr 1fr}}
+.child-row label.field > span{font-size:11px}
+#output{font-family:Consolas,ui-monospace,"Courier New",monospace;font-size:12.3px;line-height:1.5;max-height:62vh;overflow:auto;border:1px solid #1e2f37;border-radius:10px;padding:8px;background:#0a1419}
+.out-sec{color:#4fd0d8;letter-spacing:1px;font-size:10.5px;margin:10px 2px 3px;text-transform:uppercase}
+.out-line{display:flex;gap:8px;padding:2px 5px;border-radius:5px;cursor:copy}
+.out-line:hover{background:#15303a}
+.out-line.copied{background:#16513f}
+.out-key{color:#87a6b1;flex:0 0 132px;font-size:11.5px}
+.out-val{color:#eef4f5;word-break:break-word;min-width:0}
+.problems{list-style:none;padding:0;margin:0 0 8px;display:flex;flex-direction:column;gap:5px}
+.problems li{font-size:12.3px;line-height:1.4;padding:6px 9px;border-radius:8px;background:#2a1616;color:#ffb3b3;border:1px solid #55262a}
+.problems li.w{background:#2a2311;color:#ffd88a;border-color:#5a4a1e}
+.problems li.ok{background:#12281f;color:#8fe3b8;border-color:#22513c}
+.badge{display:inline-block;font-size:11px;letter-spacing:.4px;border-radius:999px;padding:3px 9px;border:1px solid #244149;color:#9fb8c1;white-space:nowrap}
+.badge.ok{background:#12281f;border-color:#22513c;color:#8fe3b8}
+.badge.bad{background:#2a1616;border-color:#55262a;color:#ffb3b3}
+.badge.warn{background:#2a2311;border-color:#5a4a1e;color:#ffd88a}
+.badge.run{background:#0f2129;border-color:#2c5a63;color:#7fdbe2}
+.client{border:1px solid #1e2f37;border-radius:10px;padding:9px 10px;margin-bottom:8px;background:#0c161c}
+.client .nm{font-size:13.5px;font-weight:bold;line-height:1.3;word-break:break-word}
+.client .mt{font-size:11.5px;color:#7d9aa5;margin:2px 0 6px}
+.client .acts{display:flex;gap:6px;flex-wrap:wrap}
+.empty{font-size:12.5px;color:#6d8b96;padding:6px 2px}
+.search{margin-bottom:8px}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#12281f;border:1px solid #22513c;color:#c8f2dc;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:50;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.bad{background:#2a1616;border-color:#55262a;color:#ffc9c9}
+footer{font-size:11.5px;color:#5f7d88;margin-top:8px;line-height:1.6;border-top:1px solid #14232a;padding-top:10px}
+@media print{
+  html,body{background:#fff;color:#000}
+  header.top,.form-col,.side-col .card:not(.print-card),.no-print,footer{display:none!important}
+  .wrap{max-width:none;padding:0}
+  .layout{display:block;margin:0}
+  .print-card{display:block!important;border:0;background:#fff;color:#000;padding:0;margin:0}
+  .print-card h2{color:#000}
+  #output{max-height:none;overflow:visible;border:0;background:#fff;color:#000;font-size:11px}
+  .print-card .actions{display:none!important}
+  .print-card .badge{border-color:#000;color:#000}
+  .out-sec{color:#000;font-weight:bold}
+  .out-line,.out-key,.out-val{color:#000}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="brand"><b>АНКЕТА DV</b> · ПОМОЩНИК ОПЕРАТОРА</div>
+      <h1>Заявка на грин-карту: данные, проверка, готовый блок</h1>
+      <p class="sub">Заполняете форму вместе с клиентом, видите ошибки сразу и копируете значения в том порядке, в котором их спрашивает официальный сайт. Всё работает в этом браузере — данные никуда не отправляются.</p>
+    </div>
+    <div class="meta">
+      Данные — только в этом браузере<br>
+      Файлы — офлайн, без интернета
+    </div>
+  </header>
+
+  <div class="banner">
+    <b>Важно про правила.</b> Заявку подают только на <b>dvprogram.state.gov</b>. С DV-2027 участие стоит <b>$1</b> (финальное правило от 16.09.2025), а большинство участников обязаны приложить <b>скан паспорта</b> (правило от 11.03.2026, действует с DV-2027). Регистрация DV-2027 на октябрь 2026 задержана: суд обязал открыть её до 1 ноября 2026 — даты проверяйте на официальном сайте. Этот файл заявки не подаёт: он проверяет данные и выдаёт готовый блок для ручного заполнения. Выигрыш не гарантируется, дубли заявок и ошибки в имени, фото или паспорте ведут к дисквалификации.
+  </div>
+
+  <div class="layout">
+    <!-- ЛЕВАЯ КОЛОНКА: ФОРМА -->
+    <div class="form-col">
+      <div class="card">
+        <h2>1. Имя <small>как в загранпаспорте, латиницей</small></h2>
+        <div class="grid3">
+          <label class="field"><span>Фамилия <em>Last Name</em></span>
+            <div class="with-btn"><input id="f_last" placeholder="IVANOV" autocomplete="off"><button type="button" class="mini" data-act="translit" data-target="f_last" title="Транслитерировать">→</button></div>
+          </label>
+          <label class="field"><span>Имя <em>First Name</em></span>
+            <div class="with-btn"><input id="f_first" placeholder="IVAN" autocomplete="off"><button type="button" class="mini" data-act="translit" data-target="f_first" title="Транслитерировать">→</button></div>
+          </label>
+          <label class="field"><span>Отчество <em>Middle Name</em></span>
+            <div class="with-btn"><input id="f_middle" placeholder="IVANOVICH" autocomplete="off"><button type="button" class="mini" data-act="translit" data-target="f_middle" title="Транслитерировать">→</button></div>
+          </label>
+        </div>
+        <div class="hint">Кнопка «→» переводит написанное кириллицей в латиницу. Правило формы: имя ровно как в загранпаспорте. Если в паспорте только имя и фамилия — отчество не пишите. Если имя одно — вписывайте его в поле «Фамилия». При подаче DV-2027 поля сверяются со сканом паспорта.</div>
+      </div>
+
+      <div class="card">
+        <h2>2. Рождение и гражданство</h2>
+        <div class="grid3">
+          <label class="field"><span>Дата рождения <em>Birth Date</em></span><input type="date" id="f_dob"></label>
+          <label class="field"><span>Пол <em>Sex</em></span>
+            <select id="f_gender">
+              <option value="">—</option>
+              <option value="Male">Male — мужской</option>
+              <option value="Female">Female — женский</option>
+            </select>
+          </label>
+          <label class="field"><span>Город рождения <em>City of Birth</em></span><input id="f_birthcity" placeholder="Dushanbe" autocomplete="off"></label>
+        </div>
+        <div class="grid2" style="margin-top:9px">
+          <label class="field"><span>Страна рождения <em>Country of Birth</em></span>
+            <input id="f_birthcountry" list="countries" placeholder="Tajikistan" autocomplete="off">
+          </label>
+          <label class="field"><span>Страна участия <em>Country of Eligibility</em></span>
+            <input id="f_elig" list="countries" placeholder="обычно совпадает" autocomplete="off">
+          </label>
+        </div>
+        <div class="hint">Страна участия совпадает со страной рождения. Другую страну можно указать только по правилам: страна рождения супруга (супруг указан в заявке и едет вместе) или страна рождения одного из родителей, если вы родились там, где ни один родитель не родился и не жил постоянно.</div>
+        <datalist id="countries"></datalist>
+      </div>
+
+      <div class="card">
+        <h2>3. Фотография <small>600×600, JPEG, до 240 КБ</small></h2>
+        <div class="with-btn" style="align-items:center;flex-wrap:wrap">
+          <input type="file" id="photoInput" accept="image/jpeg,image/jpg,image/*" style="max-width:320px">
+          <button type="button" class="mini" id="photoFix" hidden>Исправить</button>
+          <a class="mini" id="photoLink" download="dv-photo.jpg" hidden style="border:1px solid #244149;border-radius:9px;padding:4px 9px;color:#7fdbe2;font-size:12px">Скачать</a>
+        </div>
+        <div id="photoStatus" class="hint">Требования: цветной, в фокусе, лицо в анфас с нейтральным выражением и открытыми глазами, белый/слегка бежевый фон, без очков, головных уборов и наушников, голова 50–69% высоты кадра, снимок не старше 6 месяцев, JPEG, 600×600, до 240 КБ. Нельзя использовать фото из прошлых заявок и обработанные редактором. Формат проверяется автоматически, остальное — глазами.</div>
+        <label class="chk" style="margin-top:9px"><input type="checkbox" id="f_photo_fresh"> Фото новое (до 6 месяцев), не из прошлых заявок и без обработки</label>
+      </div>
+
+      <div class="card">
+        <h2>4. Адрес и контакты</h2>
+        <div class="grid2">
+          <label class="field"><span>На чьё имя <em>In Care Of</em> (необязательно)</span><input id="f_incare" placeholder="Ivan Petrov" autocomplete="off"></label>
+          <label class="field"><span>Адрес, строка 1 <em>Address Line 1</em></span><input id="f_addr1" placeholder="ul. Lenina 12, kv. 3" autocomplete="off"></label>
+          <label class="field"><span>Адрес, строка 2 <em>Address Line 2</em> (необязательно)</span><input id="f_addr2" autocomplete="off"></label>
+          <label class="field"><span>Город <em>City/Town</em></span><input id="f_city" placeholder="Dushanbe" autocomplete="off"></label>
+          <label class="field"><span>Регион/область <em>District/County/Province/State</em></span><input id="f_prov" placeholder="Dushanbe" autocomplete="off"></label>
+          <label class="field"><span>Индекс <em>Postal Code/Zip Code</em></span><input id="f_postal" placeholder="734000" autocomplete="off"></label>
+          <label class="field"><span>Страна адреса <em>Country</em></span><input id="f_mcountry" list="countries" placeholder="Tajikistan" autocomplete="off"></label>
+          <label class="field"><span>Телефон <em>Phone</em> (необязательно)</span><input id="f_phone" placeholder="+992 90 0000000" autocomplete="off"></label>
+          <label class="field"><span>Email <em>Email</em></span><input id="f_email" placeholder="ivan@mail.ru" autocomplete="off"></label>
+        </div>
+        <div class="hint">Адрес нужен только для почты и контакта по заявке — подойдёт адрес клиента или ваш рабочий. Email обязателен и должен быть доступен клиенту до мая следующего года: туда придут письма, если заявку выберут. Государство никогда не пишет «вы выиграли» — только «проверьте статус».</div>
+      </div>
+
+      <div class="card">
+        <h2>5. Проживание, образование, семья</h2>
+        <div class="grid2">
+          <label class="field"><span>Страна проживания сейчас <em>Country where you live today</em></span><input id="f_residence" list="countries" placeholder="Russia" autocomplete="off"></label>
+          <label class="field"><span>Образование <em>Highest Education</em></span>
+            <select id="f_edu">
+              <option value="">—</option>
+              <option value="Primary school only">Primary school only — только начальная школа</option>
+              <option value="Some high school, no diploma">Some high school, no diploma — неполная средняя</option>
+              <option value="High school diploma">High school diploma — среднее (диплом)</option>
+              <option value="Vocational school">Vocational school — училище / техникум</option>
+              <option value="Some university courses">Some university courses — незаконченное высшее</option>
+              <option value="University degree">University degree — высшее</option>
+              <option value="Some graduate-level courses">Some graduate-level courses — аспирантура, без степени</option>
+              <option value="Master's degree">Master's degree — магистр</option>
+              <option value="Some doctoral-level courses">Some doctoral-level courses — докторантура, без степени</option>
+              <option value="Doctorate">Doctorate — доктор наук</option>
+            </select>
+          </label>
+          <label class="field"><span>Семейное положение <em>Marital Status</em></span>
+            <select id="f_marital">
+              <option value="">—</option>
+              <option value="Unmarried">Unmarried — не женат / не замужем</option>
+              <option value="Married">Married, супруг(а) НЕ гражданин США и не грин-карточник</option>
+              <option value="MarriedUS">Married, супруг(а) гражданин США или обладатель грин-карты</option>
+              <option value="Divorced">Divorced — разведён(а)</option>
+              <option value="Widowed">Widowed — вдовец / вдова</option>
+              <option value="Legally Separated">Legally separated — официально раздельное проживание</option>
+            </select>
+          </label>
+        </div>
+        <div class="hint">Если супруг(а) — гражданин США или обладатель грин-карты, данные супруга в заявке не заполняются. При браке без такого статуса супруг(а) указывается обязательно, даже если живёте раздельно или планируете развод. При официально раздельном проживании супруга можно не указывать — он(а) не сможет иммигрировать, но и штрафа за указание нет. Образование ниже диплома школы допустимо, только если есть 2 года работы за последние 5 лет по профессии, требующей 2 лет подготовки.</div>
+      </div>
+
+      <div class="card" id="spouseCard" hidden>
+        <h2>6. Супруг(а) <small>отдельная заявка тоже обязательна</small></h2>
+        <div class="grid3">
+          <label class="field"><span>Фамилия</span><input id="s_last" autocomplete="off"></label>
+          <label class="field"><span>Имя</span><input id="s_first" autocomplete="off"></label>
+          <label class="field"><span>Отчество</span><input id="s_middle" autocomplete="off"></label>
+          <label class="field"><span>Дата рождения</span><input type="date" id="s_dob"></label>
+          <label class="field"><span>Пол</span>
+            <select id="s_gender">
+              <option value="">—</option>
+              <option value="Male">Male — мужской</option>
+              <option value="Female">Female — женский</option>
+            </select>
+          </label>
+          <label class="field"><span>Город рождения</span><input id="s_city" autocomplete="off"></label>
+          <label class="field"><span>Страна рождения</span><input id="s_country" list="countries" autocomplete="off"></label>
+        </div>
+        <label class="chk" style="margin-top:9px"><input type="checkbox" id="s_photo"> Фото супруга(и) готово и проверено</label>
+        <div class="hint">Супруг(а) должен(на) отдельно подать свою заявку — иначе не сможет поехать вместе с вами. Фото супруга(и) прикладывается к вашей заявке.</div>
+      </div>
+
+      <div class="card">
+        <h2>7. Дети <small>не женатые, до 21 года — обязательны</small></h2>
+        <div id="childrenList"></div>
+        <div class="actions">
+          <button type="button" class="mini" data-act="addChild">+ Добавить ребёнка</button>
+        </div>
+        <div class="hint">Вносятся все живые дети до 21 года: родные, усыновлённые и пасынки/падчерицы, даже если вы уже не женаты на их родителе и даже если ребёнок не поедет. Фото нужно на каждого. Женатые дети и дети 21+ не вносятся. Для ребёнка — гражданина США или обладателя грин-карты фото не обязательно.</div>
+      </div>
+
+      <div class="card" id="passportCard">
+        <h2>8. Паспорт и взнос <small>новые требования с DV-2027</small></h2>
+        <div class="grid3">
+          <label class="field"><span>Номер паспорта <em>Passport number</em></span><input id="p_num" placeholder="75 1234567" autocomplete="off"></label>
+          <label class="field"><span>Дата выдачи</span><input type="date" id="p_issue"></label>
+          <label class="field"><span>Действителен до</span><input type="date" id="p_exp"></label>
+        </div>
+        <label class="chk" style="margin-top:9px"><input type="checkbox" id="p_scan"> Скан готов: JPEG, до 5 МБ, страница с фото и подписью</label>
+        <label class="chk" style="margin-top:6px"><input type="checkbox" id="p_exempt"> Освобождён от паспорта (апатрид / страна не выдаёт паспорт / waiver)</label>
+        <label class="chk" style="margin-top:6px"><input type="checkbox" id="f_fee_paid"> Регистрационный взнос $1 оплачен</label>
+        <div class="hint">С DV-2027 большинство участников обязаны указать данные паспорта и приложить скан страницы с фото и подписью (JPEG, до 5 МБ, PDF не принимается). Паспорт должен быть действительным и не истёкшим на момент подачи. Освобождения узкие: апатриды, граждане стран, где паспорт получить невозможно, и отдельные разрешения DHS и Госдепа. Официальная инструкция DV-2027 на октябрь 2026 ещё не опубликована — сверяйте с ней.</div>
+      </div>
+
+      <div class="actions no-print" style="margin-bottom:14px">
+        <button type="button" class="primary" data-act="save">Сохранить клиента</button>
+        <button type="button" data-act="new">Новая заявка</button>
+        <span class="spacer"></span>
+        <span class="badge" id="saveState">черновик</span>
+      </div>
+    </div>
+
+    <!-- ПРАВАЯ КОЛОНКА -->
+    <div class="side-col">
+      <div class="card print-card">
+        <h2>Готовый блок <small>нажмите на строку, чтобы скопировать</small></h2>
+        <div style="margin:-4px 0 8px"><span class="badge" id="readiness" hidden></span></div>
+        <ul class="problems" id="problems"></ul>
+        <div id="output"></div>
+        <div class="actions" style="margin-top:10px">
+          <button type="button" class="primary mini" data-act="copyAll">Копировать всё</button>
+          <button type="button" class="mini" data-act="print">Печать карточки</button>
+        </div>
+      </div>
+
+      <div class="card no-print" id="statusCard" hidden>
+        <h2>Статус заявки</h2>
+        <div class="grid2">
+          <label class="field"><span>Статус</span>
+            <select id="stStatus">
+              <option value="draft">Черновик — данные собираем</option>
+              <option value="submitted">Подана</option>
+              <option value="result">Результат известен</option>
+            </select>
+          </label>
+          <label class="field"><span>Номер подтверждения</span><input id="stConf" placeholder="например 2026XXXXXXXXXXXX" autocomplete="off"></label>
+          <label class="field"><span>Дата подачи</span><input type="date" id="stDate"></label>
+        </div>
+        <div class="hint">Номер подтверждения сохраните сразу после подачи и распечатайте экран подтверждения — на нём есть номер и данные заявителя. Без номера клиент не проверит результат. Отдайте распечатку клиенту: это его защита от схем «мы храним ваш номер».</div>
+      </div>
+
+      <div class="card no-print">
+        <h2>Клиенты <small id="cnt"></small></h2>
+        <input id="search" class="search" placeholder="Поиск по фамилии, имени или дате" autocomplete="off">
+        <div id="list"></div>
+      </div>
+
+      <div class="card no-print">
+        <h2>Резервная копия</h2>
+        <div class="actions">
+          <button type="button" class="mini" data-act="export">Скачать базу (JSON)</button>
+          <label class="mini" style="border:1px solid #244149;border-radius:9px;padding:4px 9px;cursor:pointer;font-size:12px">Загрузить базу<input type="file" id="importInput" accept="application/json,.json" hidden></label>
+        </div>
+        <div class="hint">Данные лежат в этом браузере. Раз в неделю скачивайте копию: при очистке браузера база исчезнет.</div>
+      </div>
+
+      <footer class="no-print">
+        Инструмент готовит данные для ручного заполнения формы на dvprogram.state.gov. С DV-2027 участие стоит $1 за заявку и требует скан паспорта; выигрыш не гарантируется. Сверено с инструкцией DV-2026 (публикация в Federal Register 01.10.2024) и финальными правилами о взносе (16.09.2025) и паспортах (11.03.2026). Это не юридическая консультация: спорные случаи (опека, супруги, страна участия) проверяйте по официальной инструкции сезона.
+      </footer>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+/* ============ утилиты ============ */
+var $ = function (id) { return document.getElementById(id); };
+function val(id) { var el = $(id); return el ? String(el.value || '').trim() : ''; }
+function kb(n) { return Math.round(n / 1024); }
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+function copyText(text) {
+  if (!text) return Promise.resolve(false);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text).then(function () { return true; }).catch(function () { return fallbackCopy(text); });
+  }
+  return Promise.resolve(fallbackCopy(text));
+}
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  ta.remove();
+  return ok;
+}
+
+/* ============ страны ============ */
+var COUNTRIES = [
+  ['Afghanistan','Афганистан'],['Albania','Албания'],['Algeria','Алжир'],['Argentina','Аргентина'],
+  ['Armenia','Армения'],['Australia','Австралия'],['Austria','Австрия'],['Azerbaijan','Азербайджан'],
+  ['Bangladesh','Бангладеш'],['Belarus','Беларусь'],['Belgium','Бельгия'],['Bolivia','Боливия'],
+  ['Bosnia and Herzegovina','Босния и Герцеговина'],['Brazil','Бразилия'],['Bulgaria','Болгария'],
+  ['Cambodia','Камбоджа'],['Cameroon','Камерун'],['Canada','Канада'],['Chile','Чили'],['China','Китай'],
+  ['Colombia','Колумбия'],['Costa Rica','Коста-Рика'],['Croatia','Хорватия'],['Cuba','Куба'],
+  ['Cyprus','Кипр'],['Czech Republic','Чехия'],['Denmark','Дания'],['Dominican Republic','Доминикана'],
+  ['Ecuador','Эквадор'],['Egypt','Египет'],['Estonia','Эстония'],['Ethiopia','Эфиопия'],['Finland','Финляндия'],
+  ['France','Франция'],['Georgia','Грузия'],['Germany','Германия'],['Ghana','Гана'],['Greece','Греция'],
+  ['Guatemala','Гватемала'],['Honduras','Гондурас'],['Hungary','Венгрия'],['India','Индия'],
+  ['Indonesia','Индонезия'],['Iran','Иран'],['Iraq','Ирак'],['Ireland','Ирландия'],['Israel','Израиль'],
+  ['Italy','Италия'],['Jamaica','Ямайка'],['Japan','Япония'],['Jordan','Иордания'],['Kazakhstan','Казахстан'],
+  ['Kenya','Кения'],['Korea, South','Южная Корея'],['Kuwait','Кувейт'],['Kyrgyzstan','Кыргызстан'],
+  ['Latvia','Латвия'],['Lebanon','Ливан'],['Libya','Ливия'],['Lithuania','Литва'],['Malaysia','Малайзия'],
+  ['Mexico','Мексика'],['Moldova','Молдова'],['Mongolia','Монголия'],['Montenegro','Черногория'],
+  ['Morocco','Марокко'],['Nepal','Непал'],['Netherlands','Нидерланды'],['New Zealand','Новая Зеландия'],
+  ['Nigeria','Нигерия'],['North Macedonia','Северная Македония'],['Norway','Норвегия'],['Pakistan','Пакистан'],
+  ['Panama','Панама'],['Paraguay','Парагвай'],['Peru','Перу'],['Philippines','Филиппины'],['Poland','Польша'],
+  ['Portugal','Португалия'],['Romania','Румыния'],['Russia','Россия'],['Rwanda','Руанда'],
+  ['Saudi Arabia','Саудовская Аравия'],['Senegal','Сенегал'],['Serbia','Сербия'],['Singapore','Сингапур'],
+  ['Slovakia','Словакия'],['Slovenia','Словения'],['South Africa','ЮАР'],['Spain','Испания'],
+  ['Sri Lanka','Шри-Ланка'],['Sudan','Судан'],['Sweden','Швеция'],['Switzerland','Швейцария'],
+  ['Syria','Сирия'],['Tajikistan','Таджикистан'],['Tanzania','Танзания'],['Thailand','Таиланд'],
+  ['Trinidad and Tobago','Тринидад и Тобаго'],['Tunisia','Тунис'],['Turkey','Турция'],
+  ['Turkmenistan','Туркменистан'],['Uganda','Уганда'],['Ukraine','Украина'],
+  ['United Arab Emirates','ОАЭ'],['United Kingdom','Великобритания'],['United States','США'],
+  ['Uruguay','Уругвай'],['Uzbekistan','Узбекистан'],['Venezuela','Венесуэла'],['Vietnam','Вьетнам'],
+  ['Yemen','Йемен'],['Zambia','Замбия'],['Zimbabwe','Зимбабве']
+];
+
+/* ============ транслитерация ============ */
+var TR = { 'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'e','ж':'zh','з':'z','и':'i','й':'y','к':'k',
+  'л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch',
+  'ш':'sh','щ':'shch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya','і':'i','ї':'i','є':'ye','ґ':'g' };
+
+function translit(str) {
+  var out = '';
+  for (var i = 0; i < str.length; i++) {
+    var ch = str[i];
+    var low = ch.toLowerCase();
+    if (!Object.prototype.hasOwnProperty.call(TR, low)) { out += ch; continue; }
+    var rep = TR[low];
+    if (ch !== low && rep) rep = rep.charAt(0).toUpperCase() + rep.slice(1);
+    out += rep;
+  }
+  return out.replace(/\s+/g, ' ').trim();
+}
+
+/* ============ состояние ============ */
+var LS_CLIENTS = 'dv_clients_v1';
+var LS_DRAFT = 'dv_draft_v1';
+
+var state = {
+  clients: [],
+  children: [],
+  currentId: null,
+  photo: null,
+  photoImg: null
+};
+
+var FIELDS = ['f_last','f_first','f_middle','f_dob','f_gender','f_birthcity','f_birthcountry','f_elig',
+  'f_photo_fresh','f_addr1','f_addr2','f_incare','f_city','f_prov','f_postal','f_mcountry','f_phone','f_email',
+  'f_residence','f_edu','f_marital',
+  's_last','s_first','s_middle','s_dob','s_gender','s_city','s_country','s_photo',
+  'p_num','p_issue','p_exp','p_scan','p_exempt','f_fee_paid'];
+
+/* ============ сбор и применение данных ============ */
+function collect() {
+  var o = { id: state.currentId };
+  FIELDS.forEach(function (id) {
+    var el = $(id);
+    if (!el) return;
+    o[id] = (el.type === 'checkbox') ? (el.checked ? '1' : '') : String(el.value || '').trim();
+  });
+  o.children = state.children.map(function (c) { return Object.assign({}, c); });
+  return o;
+}
+
+function apply(d) {
+  if (!d) return;
+  FIELDS.forEach(function (id) {
+    var el = $(id);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = d[id] === '1';
+    else el.value = (d[id] == null ? '' : d[id]);
+  });
+  state.children = (d.children || []).map(function (c) {
+    return {
+      last: c.last || '', first: c.first || '', middle: c.middle || '',
+      dob: c.dob || '', gender: c.gender || '', city: c.city || '', country: c.country || '',
+      photo: c.photo || ''
+    };
+  });
+  renderChildren();
+  syncSpouse();
+}
+
+/* ============ хранилище ============ */
+function loadClients() {
+  try {
+    var raw = localStorage.getItem(LS_CLIENTS);
+    var arr = raw ? JSON.parse(raw) : [];
+    state.clients = Array.isArray(arr) ? arr : [];
+  } catch (e) { state.clients = []; }
+}
+function storageOk() {
+  try {
+    localStorage.setItem('__dv_probe', '1');
+    localStorage.removeItem('__dv_probe');
+    return true;
+  } catch (e) { return false; }
+}
+function saveClients() {
+  try { localStorage.setItem(LS_CLIENTS, JSON.stringify(state.clients)); } catch (e) {}
+}
+function saveDraft() {
+  try { localStorage.setItem(LS_DRAFT, JSON.stringify(collect())); } catch (e) {}
+}
+function loadDraft() {
+  try {
+    var raw = localStorage.getItem(LS_DRAFT);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+/* ============ дети ============ */
+function childField(i, key, label, isSelect) {
+  var wrap = document.createElement('label');
+  wrap.className = 'field';
+  var span = document.createElement('span');
+  span.textContent = label;
+  wrap.appendChild(span);
+  var input;
+  if (isSelect) {
+    input = document.createElement('select');
+    [['', '—'], ['Male', 'Male — М'], ['Female', 'Female — Ж']].forEach(function (o) {
+      var op = document.createElement('option');
+      op.value = o[0]; op.textContent = o[1];
+      input.appendChild(op);
+    });
+  } else if (key === 'dob') {
+    input = document.createElement('input');
+    input.type = 'date';
+  } else {
+    input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = key === 'last' ? 'IVANOV' : key === 'first' ? 'IVAN' : key === 'middle' ? 'IVANOVICH' : key === 'city' ? 'Dushanbe' : 'Tajikistan';
+  }
+  input.setAttribute('data-ci', String(i));
+  input.setAttribute('data-cf', key);
+  input.value = state.children[i][key] || '';
+  wrap.appendChild(input);
+  return wrap;
+}
+
+function renderChildren() {
+  var box = $('childrenList');
+  if (!box) return;
+  box.innerHTML = '';
+  if (!state.children.length) {
+    var e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = 'Детей нет — ничего не добавляйте.';
+    box.appendChild(e);
+    return;
+  }
+  state.children.forEach(function (c, i) {
+    var row = document.createElement('div');
+    row.className = 'child-row';
+    row.appendChild(childField(i, 'last', 'Фамилия', false));
+    row.appendChild(childField(i, 'first', 'Имя', false));
+    row.appendChild(childField(i, 'middle', 'Отчество', false));
+    row.appendChild(childField(i, 'dob', 'Дата рожд.', false));
+    row.appendChild(childField(i, 'gender', 'Пол', true));
+    row.appendChild(childField(i, 'city', 'Город', false));
+    row.appendChild(childField(i, 'country', 'Страна', false));
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'mini danger';
+    del.textContent = '✕';
+    del.title = 'Удалить ребёнка';
+    del.setAttribute('data-act', 'delChild');
+    del.setAttribute('data-ci', String(i));
+    row.appendChild(del);
+    box.appendChild(row);
+    var chk = document.createElement('label');
+    chk.className = 'chk';
+    chk.style.margin = '-2px 0 8px 2px';
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = c.photo === '1';
+    cb.setAttribute('data-ci', String(i));
+    cb.setAttribute('data-cf', 'photo');
+    chk.appendChild(cb);
+    chk.appendChild(document.createTextNode(' Фото ребёнка готово и проверено'));
+    box.appendChild(chk);
+  });
+}
+
+function syncSpouse() {
+  var m = val('f_marital');
+  var card = $('spouseCard');
+  if (!card) return;
+  var married = (m === 'Married' || m === 'Legally Separated');
+  card.hidden = !married;
+}
+
+/* ============ проверка ============ */
+var LATIN = /^[A-Za-z][A-Za-z' .\-]*$/;
+var CYR = /[А-Яа-яЁёІіЇїЄєҐґ]/;
+var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function validDate(s) {
+  if (!s) return null;
+  var d = new Date(s + 'T00:00:00');
+  return isNaN(d.getTime()) ? null : d;
+}
+function ageOf(s) {
+  var d = validDate(s);
+  if (!d) return null;
+  var n = new Date();
+  var a = n.getFullYear() - d.getFullYear();
+  var m = n.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && n.getDate() < d.getDate())) a--;
+  return a;
+}
+function fmtDate(s) {
+  var d = validDate(s);
+  return d ? pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() : '';
+}
+function norm(s) { return String(s || '').toLowerCase().replace(/\s+/g, ''); }
+
+function dupOf(c) {
+  if (!c.f_last || !c.f_first || !c.f_dob) return null;
+  var key = norm(c.f_last) + '|' + norm(c.f_first) + '|' + c.f_dob;
+  var found = null;
+  state.clients.forEach(function (x) {
+    if (x.id === c.id) return;
+    if (norm(x.f_last) + '|' + norm(x.f_first) + '|' + x.f_dob === key) found = x;
+  });
+  return found;
+}
+
+function validate(c) {
+  var errs = [], warns = [];
+  function E(f, m) { errs.push({ f: f, m: m }); }
+  function W(m) { warns.push(m); }
+
+  /* имя */
+  if (!c.f_last) E('f_last', 'Не заполнена фамилия');
+  if (!c.f_first) E('f_first', 'Не заполнено имя');
+  [['f_last', 'Фамилия'], ['f_first', 'Имя'], ['f_middle', 'Отчество']].forEach(function (p) {
+    var v = c[p[0]];
+    if (!v) return;
+    if (CYR.test(v)) E(p[0], p[1] + ': нужна латиница, как в загранпаспорте');
+    else if (!LATIN.test(v)) E(p[0], p[1] + ': только латинские буквы, пробел и дефис');
+  });
+
+  /* рождение */
+  if (!c.f_dob) E('f_dob', 'Не заполнена дата рождения');
+  else {
+    var d = validDate(c.f_dob);
+    if (!d) E('f_dob', 'Дата рождения не распознана');
+    else if (d > new Date()) E('f_dob', 'Дата рождения в будущем');
+    else if (ageOf(c.f_dob) > 120) E('f_dob', 'Проверьте год рождения');
+  }
+  if (!c.f_gender) E('f_gender', 'Не указан пол');
+  if (!c.f_birthcity) E('f_birthcity', 'Не заполнен город рождения');
+  if (!c.f_birthcountry) E('f_birthcountry', 'Не указана страна рождения');
+  else if (CYR.test(c.f_birthcountry)) W('Страна рождения записана кириллицей — на сайте нужна латиница');
+  if (!c.f_elig) E('f_elig', 'Не указана страна участия');
+  else if (c.f_birthcountry && c.f_elig.toLowerCase() !== c.f_birthcountry.toLowerCase() && !CYR.test(c.f_elig)) {
+    W('Страна участия отличается от страны рождения — допустимо только через страну рождения супруга (он указан в заявке и едет вместе) или через родителя, если вы родились там, где ни один родитель не родился и не жил постоянно');
+  }
+
+  /* фото */
+  if (!state.photo) E('photoInput', 'Фото не загружено');
+  else if (!state.photo.ok) E('photoInput', state.photo.hard[0] || 'Фото не проходит проверку');
+  else {
+    state.photo.soft.forEach(function (s) { W('Фото: ' + s); });
+  }
+  if (c.f_photo_fresh !== '1') W('Не отмечено, что фото новое (до 6 месяцев) и не использовалось в прошлых заявках — повторное или обработанное фото ведёт к дисквалификации');
+
+  /* адрес */
+  if (!c.f_addr1) E('f_addr1', 'Не заполнен адрес (строка 1)');
+  if (!c.f_city) E('f_city', 'Не заполнен город адреса');
+  if (!c.f_prov) E('f_prov', 'Не заполнен регион адреса');
+  if (!c.f_mcountry) E('f_mcountry', 'Не указана страна адреса');
+  else if (CYR.test(c.f_mcountry)) W('Страна адреса записана кириллицей');
+  if (!c.f_postal) W('Не заполнен индекс — на сайте он обычно обязателен');
+  if (c.f_email && !EMAIL.test(c.f_email)) E('f_email', 'Email выглядит некорректно');
+  if (!c.f_email) E('f_email', 'Не заполнен email');
+
+  /* остальное */
+  if (!c.f_residence) E('f_residence', 'Не указана страна проживания');
+  else if (CYR.test(c.f_residence)) W('Страна проживания записана кириллицей');
+  if (!c.f_edu) E('f_edu', 'Не указано образование');
+  else if (c.f_edu === 'Primary school only' || c.f_edu === 'Some high school, no diploma') {
+    W('Образование ниже диплома школы допустимо, только если есть 2 года работы за последние 5 лет по профессии, требующей 2 лет подготовки (проверка по базе O*Net)');
+  }
+  if (!c.f_marital) E('f_marital', 'Не указано семейное положение');
+
+  /* супруг */
+  if (c.f_marital === 'Married') {
+    if (!c.s_last) E('s_last', 'Не заполнена фамилия супруга(и)');
+    if (!c.s_first) E('s_first', 'Не заполнено имя супруга(и)');
+    if (!c.s_dob) E('s_dob', 'Не заполнена дата рождения супруга(и)');
+    if (!c.s_gender) E('s_gender', 'Не указан пол супруга(и)');
+    if (!c.s_city) E('s_city', 'Не заполнен город рождения супруга(и)');
+    if (!c.s_country) E('s_country', 'Не заполнена страна рождения супруга(и)');
+    if (c.s_photo !== '1') W('Фото супруга(и) не отмечено — оно тоже прикладывается к заявке');
+  } else if (c.f_marital === 'Legally Separated') {
+    W('Официально раздельное проживание: супруга можно не указывать (он(а) не иммигрирует), штрафа за указание нет');
+  } else if (c.f_marital === 'MarriedUS') {
+    W('Супруг(а) — гражданин США или обладатель грин-карты: данные супруга в заявке не заполняются, отдельная заявка супругу не нужна');
+  }
+
+  /* дети */
+  if (c.children && c.children.length > 1) {
+    var fio = {};
+    c.children.forEach(function (ch) {
+      var k = norm(ch.last) + '|' + norm(ch.first) + '|' + ch.dob;
+      if (ch.last && ch.first && ch.dob) {
+        fio[k] = (fio[k] || 0) + 1;
+        if (fio[k] > 1) W('Ребёнок ' + (ch.last + ' ' + ch.first) + ' указан дважды');
+      }
+    });
+  }
+  c.children.forEach(function (ch, i) {
+    var n = i + 1;
+    if (!ch.last) E(null, 'Ребёнок ' + n + ': не заполнена фамилия');
+    if (!ch.first) E(null, 'Ребёнок ' + n + ': не заполнено имя');
+    if (!ch.dob) E(null, 'Ребёнок ' + n + ': не заполнена дата рождения');
+    else {
+      var ag = ageOf(ch.dob);
+      if (ag != null && ag >= 21) W('Ребёнок ' + n + ': ' + ag + ' лет — обычно в заявку не включается');
+      if (ag != null && ag < 0) E(null, 'Ребёнок ' + n + ': дата рождения в будущем');
+    }
+    if (!ch.gender) E(null, 'Ребёнок ' + n + ': не указан пол');
+    if (!ch.city) E(null, 'Ребёнок ' + n + ': не заполнен город рождения');
+    if (!ch.country) E(null, 'Ребёнок ' + n + ': не заполнена страна рождения');
+    if (ch.photo !== '1') W('Ребёнок ' + n + ': фото не отмечено');
+  });
+
+  /* паспорт и взнос (DV-2027) */
+  if (c.p_exempt === '1') {
+    W('Отмечено освобождение от паспорта — применимо только к апатридам, гражданам стран, где паспорт получить невозможно, и отдельным разрешениям DHS и Госдепа');
+  } else {
+    if (!c.p_num) E('p_num', 'Не указан номер паспорта — с DV-2027 это обязательный шаг');
+    if (!c.p_exp) E('p_exp', 'Не указана дата окончания паспорта');
+    else {
+      var pe = validDate(c.p_exp);
+      if (pe && pe < new Date()) E('p_exp', 'Паспорт истёк — на момент подачи нужен действующий');
+    }
+    if (c.p_scan !== '1') W('Скан паспорта не отмечен — нужен JPEG до 5 МБ со страницей фото и подписи');
+  }
+  if (c.p_issue && c.p_exp) {
+    var pi = validDate(c.p_issue), pe2 = validDate(c.p_exp);
+    if (pi && pe2 && pe2 <= pi) E('p_exp', 'Дата окончания паспорта раньше даты выдачи');
+  }
+  if (c.f_fee_paid !== '1') W('Не отмечен оплаченный взнос $1 — без него заявку не примут');
+
+  /* дубли */
+  var dup = dupOf(c);
+  if (dup) W('Похоже на дубль: ' + dup.f_last + ' ' + dup.f_first + ', ' + fmtDate(dup.f_dob) + ' уже есть в базе');
+
+  return { errors: errs, warns: warns };
+}
+
+/* ============ вывод ============ */
+function buildSections(c) {
+  var S = [];
+  function sec(t) { var s = { t: t, rows: [] }; S.push(s); return s; }
+  function row(s, k, v) { if (v !== '' && v != null) s.rows.push([k, String(v)]); }
+  function mark(v) { return v === '1' ? 'да' : 'НЕТ'; }
+
+  var s1 = sec('1. Имя (Name)');
+  row(s1, 'Last/Family Name', c.f_last);
+  row(s1, 'First Name', c.f_first);
+  row(s1, 'Middle Name', c.f_middle);
+
+  var s2 = sec('2. Пол (Sex)');
+  row(s2, 'Sex', c.f_gender);
+
+  var s3 = sec('3. Дата рождения');
+  row(s3, 'Date of Birth (ДД/ММ/ГГГГ)', c.f_dob ? fmtDate(c.f_dob) : '');
+
+  var s4 = sec('4. Город рождения');
+  row(s4, 'City of Birth', c.f_birthcity);
+
+  var s5 = sec('5. Страна рождения');
+  row(s5, 'Country of Birth', c.f_birthcountry);
+
+  var s6 = sec('6. Страна участия (Eligibility)');
+  row(s6, 'Country of Eligibility', c.f_elig);
+
+  var ptxt = 'не загружено';
+  if (state.photo) {
+    if (state.photo.ok) {
+      ptxt = 'готово' + (state.photo.w ? ' · ' + state.photo.w + '×' + state.photo.h : '') + (state.photo.size ? ' · ' + kb(state.photo.size) + ' КБ' : '');
+      if (state.photo.fixed) ptxt += ' · исправлено';
+    } else {
+      ptxt = 'ОШИБКА: ' + (state.photo.hard[0] || 'не прошло проверку');
+    }
+  }
+  var s7 = sec('7. Фото');
+  row(s7, 'Фото заявителя', ptxt);
+  row(s7, 'Фото новое, не из прошлых заявок', mark(c.f_photo_fresh));
+
+  var s8 = sec('8. Почтовый адрес');
+  row(s8, 'In Care Of', c.f_incare);
+  row(s8, 'Address Line 1', c.f_addr1);
+  row(s8, 'Address Line 2', c.f_addr2);
+  row(s8, 'City/Town', c.f_city);
+  row(s8, 'District/County/Province/State', c.f_prov);
+  row(s8, 'Postal Code/Zip Code', c.f_postal);
+  row(s8, 'Country', c.f_mcountry);
+
+  var s9 = sec('9. Страна проживания сейчас');
+  row(s9, 'Country where you live today', c.f_residence);
+
+  var s10 = sec('10. Телефон (необязательно)');
+  row(s10, 'Phone', c.f_phone);
+
+  var s11 = sec('11. Email');
+  row(s11, 'Email', c.f_email);
+
+  var s12 = sec('12. Образование');
+  row(s12, 'Highest Education', c.f_edu);
+
+  var s13 = sec('13. Семейное положение');
+  row(s13, 'Marital Status', c.f_marital);
+
+  if (c.f_marital === 'Married') {
+    var s14 = sec('14. Супруг(а)');
+    row(s14, 'Spouse Last Name', c.s_last);
+    row(s14, 'Spouse First Name', c.s_first);
+    row(s14, 'Spouse Middle Name', c.s_middle);
+    row(s14, 'Spouse Date of Birth', c.s_dob ? fmtDate(c.s_dob) : '');
+    row(s14, 'Spouse Sex', c.s_gender);
+    row(s14, 'Spouse City of Birth', c.s_city);
+    row(s14, 'Spouse Country of Birth', c.s_country);
+    row(s14, 'Фото супруга(и)', c.s_photo === '1' ? 'готово / проверено' : 'НЕ отмечено');
+  }
+
+  if (c.children && c.children.length) {
+    var s15 = sec('15. Дети');
+    c.children.forEach(function (ch, i) {
+      var n = i + 1;
+      row(s15, 'Ребёнок ' + n + ' · Last Name', ch.last);
+      row(s15, 'Ребёнок ' + n + ' · First Name', ch.first);
+      row(s15, 'Ребёнок ' + n + ' · Middle Name', ch.middle);
+      row(s15, 'Ребёнок ' + n + ' · Date of Birth', ch.dob ? fmtDate(ch.dob) : '');
+      row(s15, 'Ребёнок ' + n + ' · Sex', ch.gender);
+      row(s15, 'Ребёнок ' + n + ' · City of Birth', ch.city);
+      row(s15, 'Ребёнок ' + n + ' · Country of Birth', ch.country);
+      row(s15, 'Ребёнок ' + n + ' · Фото', ch.photo === '1' ? 'готово / проверено' : 'НЕ отмечено');
+    });
+  }
+
+  var s16 = sec('Паспорт и взнос (DV-2027)');
+  if (c.p_exempt === '1') {
+    row(s16, 'Passport Exemption', 'заявлено освобождение');
+  } else {
+    row(s16, 'Passport Number', c.p_num);
+    row(s16, 'Passport Issue Date', c.p_issue ? fmtDate(c.p_issue) : '');
+    row(s16, 'Passport Expiry Date', c.p_exp ? fmtDate(c.p_exp) : '');
+    row(s16, 'Passport Scan (JPEG ≤5 МБ)', c.p_scan === '1' ? 'готов' : 'НЕ отмечен');
+    row(s16, 'Registration Fee $1', c.f_fee_paid === '1' ? 'оплачен' : 'НЕ отмечен');
+  }
+
+  return S;
+}
+
+function renderOutput() {
+  var c = collect();
+  var box = $('output');
+  box.innerHTML = '';
+  buildSections(c).forEach(function (s) {
+    if (!s.rows.length) return;
+    var h = document.createElement('div');
+    h.className = 'out-sec';
+    h.textContent = s.t;
+    box.appendChild(h);
+    s.rows.forEach(function (r) {
+      var line = document.createElement('div');
+      line.className = 'out-line';
+      line.dataset.value = r[1];
+      line.title = 'Нажмите, чтобы скопировать';
+      var k = document.createElement('span');
+      k.className = 'out-key';
+      k.textContent = r[0];
+      var v = document.createElement('span');
+      v.className = 'out-val';
+      v.textContent = r[1];
+      line.appendChild(k);
+      line.appendChild(v);
+      box.appendChild(line);
+    });
+  });
+  if (!box.children.length) {
+    var e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = 'Пока пусто — начните с фамилии и имени.';
+    box.appendChild(e);
+  }
+}
+
+function renderProblems(res) {
+  var ul = $('problems');
+  ul.innerHTML = '';
+  res.errors.forEach(function (x) {
+    var li = document.createElement('li');
+    li.textContent = '✗ ' + x.m;
+    ul.appendChild(li);
+  });
+  res.warns.forEach(function (m) {
+    var li = document.createElement('li');
+    li.className = 'w';
+    li.textContent = '! ' + m;
+    ul.appendChild(li);
+  });
+  if (!res.errors.length && !res.warns.length) {
+    var li2 = document.createElement('li');
+    li2.className = 'ok';
+    li2.textContent = '✓ Данных достаточно, ошибок не найдено';
+    ul.appendChild(li2);
+  }
+}
+
+/* ============ обновление ============ */
+var tmr = null;
+function scheduleUpdate() {
+  if (tmr) clearTimeout(tmr);
+  tmr = setTimeout(function () { tmr = null; update(); }, 120);
+}
+
+function update() {
+  if (!$('f_last')) return;
+  var c = collect();
+  var res = validate(c);
+  renderProblems(res);
+  renderOutput();
+  var badge = $('saveState');
+  var ready = $('readiness');
+  if (ready) {
+    ready.textContent = res.errors.length ? 'Замечаний: ' + res.errors.length : 'Готово к подаче';
+    ready.className = 'badge ' + (res.errors.length ? 'bad' : 'ok');
+    ready.hidden = false;
+  }
+  if (badge) {
+    badge.textContent = res.errors.length ? 'черновик · замечаний ' + res.errors.length : 'готово к подаче';
+    badge.className = 'badge ' + (res.errors.length ? 'warn' : 'ok');
+  }
+  saveDraft();
+}
+
+/* ============ фото ============ */
+function loadImage(url) {
+  return new Promise(function (res, rej) {
+    var img = new Image();
+    img.onload = function () { res(img); };
+    img.onerror = function () { rej(new Error('load')); };
+    img.src = url;
+  });
+}
+
+function bgCheck(img) {
+  try {
+    var c = document.createElement('canvas');
+    c.width = 64; c.height = 64;
+    var ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, 64, 64);
+    var d = ctx.getImageData(0, 0, 64, 64).data;
+    var sum = 0, sum2 = 0, n = 0;
+    for (var y = 0; y < 64; y++) {
+      for (var x = 0; x < 64; x++) {
+        var edge = (x < 6 || x > 57 || y < 6 || y > 57);
+        if (!edge) continue;
+        var i = (y * 64 + x) * 4;
+        var bright = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        sum += bright; sum2 += bright * bright; n++;
+      }
+    }
+    var avg = sum / n;
+    var varr = Math.max(0, sum2 / n - avg * avg);
+    return { brightness: Math.round(avg), spread: Math.round(Math.sqrt(varr)) };
+  } catch (e) { return null; }
+}
+
+function setPhotoStatus() {
+  var el = $('photoStatus');
+  if (!el) return;
+  var p = state.photo;
+  if (!p) {
+    el.innerHTML = 'Требования: цветной, в фокусе, лицо в анфас, нейтральное выражение, открытые глаза, белый/слегка бежевый фон, без очков и наушников, голова 50–69% высоты кадра, снимок не старше 6 месяцев, JPEG, 600×600, до 240 КБ. Нельзя фото из прошлых заявок и обработанные редактором. Формат проверяется автоматически, остальное — глазами.';
+    el.style.color = '';
+    return;
+  }
+  var lines = [];
+  if (p.ok) {
+    lines.push('✓ Файл проходит формальные требования' + (p.w ? ': ' + p.w + '×' + p.h : '') + (p.size ? ', ' + kb(p.size) + ' КБ' : ''));
+  } else {
+    p.hard.forEach(function (h) { lines.push('✗ ' + h); });
+  }
+  p.soft.forEach(function (s) { lines.push('! ' + s); });
+  if (p.brightness) lines.push('Фон: яркость ' + p.brightness + (p.brightness >= 225 ? ' — белый' : ' — может быть не белым'));
+  el.innerHTML = lines.join('<br>');
+  el.style.color = p.ok ? '#8fe3b8' : '#ffb3b3';
+}
+
+function onPhotoFile(ev) {
+  var f = ev.target.files && ev.target.files[0];
+  if (!f) return;
+  state.photo = null;
+  state.photoImg = null;
+  var hard = [], soft = [];
+  var isJpeg = /image\/jpe?g/i.test(f.type) || /\.jpe?g$/i.test(f.name);
+  if (!isJpeg) hard.push('Формат не JPEG (' + (f.type || 'неизвестен') + ')');
+  if (f.size > 245760) hard.push('Вес ' + kb(f.size) + ' КБ — больше 240 КБ');
+
+  var url = URL.createObjectURL(f);
+  loadImage(url).then(function (img) {
+    state.photoImg = img;
+    try { URL.revokeObjectURL(url); } catch (e) {}
+    var w = img.naturalWidth || img.width;
+    var h = img.naturalHeight || img.height;
+    if (w < 600 || h < 600) hard.push('Размер ' + w + '×' + h + ' — меньше 600×600');
+    if (w > 1200 || h > 1200) hard.push('Размер ' + w + '×' + h + ' — больше 1200×1200');
+    else if (w > 600 || h > 600) soft.push('Размер ' + w + '×' + h + ' — официально требуется ровно 600×600, уменьшите');
+    if (w !== h) hard.push('Кадр не квадратный (' + w + '×' + h + ') — сайт такой не примет');
+    var bg = bgCheck(img);
+    if (bg) {
+      if (bg.brightness < 225) soft.push('Фон кажется тёмным (яркость ' + bg.brightness + '), проверьте белизну');
+      else if (bg.spread > 22) soft.push('Фон неоднородный — возможны тени');
+    }
+    state.photo = {
+      ok: hard.length === 0,
+      hard: hard, soft: soft,
+      w: w, h: h, size: f.size,
+      brightness: bg ? bg.brightness : 0,
+      fixed: false
+    };
+    $('photoFix').hidden = hard.length === 0 || !state.photoImg;
+    $('photoLink').hidden = true;
+    setPhotoStatus();
+    update();
+  }).catch(function () {
+    state.photo = { ok: false, hard: ['Не удалось прочитать файл'], soft: [], fixed: false };
+    $('photoFix').hidden = true;
+    setPhotoStatus();
+    update();
+  });
+}
+
+function fixPhoto() {
+  if (!state.photoImg) return;
+  var img = state.photoImg;
+  var s = Math.min(img.naturalWidth, img.naturalHeight);
+  var sx = (img.naturalWidth - s) / 2;
+  var sy = (img.naturalHeight - s) / 2;
+  var canvas = document.createElement('canvas');
+  canvas.width = 600;
+  canvas.height = 600;
+  var ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, 600, 600);
+  ctx.drawImage(img, sx, sy, s, 0, 0, 600, 600);
+
+  var q = 0.95;
+  function tryQuality() {
+    canvas.toBlob(function (blob) {
+      if (!blob) { toast('Не удалось пересохранить изображение', true); return; }
+      if (blob.size <= 245760 || q <= 0.45) {
+        if (blob.size > 245760) { toast('Не удалось уложиться в 240 КБ', true); return; }
+        var url = URL.createObjectURL(blob);
+        state.photo = {
+          ok: true, hard: [], soft: [],
+          w: 600, h: 600, size: blob.size,
+          brightness: 0, fixed: true
+        };
+        var link = $('photoLink');
+        link.href = url;
+        link.hidden = false;
+        $('photoFix').hidden = true;
+        setPhotoStatus();
+        update();
+        toast('Фото исправлено: 600×600, ' + kb(blob.size) + ' КБ. Скачайте файл.');
+        return;
+      }
+      q -= 0.05;
+      tryQuality();
+    }, 'image/jpeg', q);
+  }
+  tryQuality();
+}
+
+/* ============ клиенты ============ */
+function statusBadge(c) {
+  if (c.status === 'submitted') return ['ok', 'подана'];
+  if (c.status === 'result') return ['run', 'результат'];
+  return ['warn', 'черновик'];
+}
+
+function renderList() {
+  var box = $('list');
+  if (!box) return;
+  var q = val('search').toLowerCase();
+  var items = state.clients.filter(function (c) {
+    if (!q) return true;
+    var hay = (c.f_last + ' ' + c.f_first + ' ' + c.f_middle + ' ' + (c.f_dob || '') + ' ' + (c.stConf || '')).toLowerCase();
+    return hay.indexOf(q) >= 0;
+  });
+  items.sort(function (a, b) { return String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')); });
+  box.innerHTML = '';
+  $('cnt').textContent = state.clients.length ? 'всего: ' + state.clients.length : '';
+  if (!items.length) {
+    var e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = state.clients.length ? 'Ничего не найдено' : 'Пока никого. Заполните форму и нажмите «Сохранить клиента».';
+    box.appendChild(e);
+    return;
+  }
+  items.forEach(function (c) {
+    var d = document.createElement('div');
+    d.className = 'client';
+    var nm = document.createElement('div');
+    nm.className = 'nm';
+    nm.textContent = ((c.f_last || '') + ' ' + (c.f_first || '') + ' ' + (c.f_middle || '')).trim() || 'Без имени';
+    var mt = document.createElement('div');
+    mt.className = 'mt';
+    var parts = [];
+    if (c.f_dob) parts.push('р. ' + fmtDate(c.f_dob));
+    if (c.f_birthcountry) parts.push(c.f_birthcountry);
+    if (c.f_marital === 'Married' || c.f_marital === 'Legally Separated') parts.push('в браке');
+    if (c.stConf) parts.push('№ ' + c.stConf);
+    mt.textContent = parts.join(' · ') || 'данные не заполнены';
+    var badgeData = statusBadge(c);
+    var b = document.createElement('span');
+    b.className = 'badge ' + badgeData[0];
+    b.textContent = badgeData[1];
+    nm.appendChild(document.createTextNode(' '));
+    nm.appendChild(b);
+
+    var acts = document.createElement('div');
+    acts.className = 'acts';
+    var open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'mini';
+    open.textContent = 'Открыть';
+    open.setAttribute('data-act', 'open');
+    open.setAttribute('data-id', c.id);
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'mini danger';
+    del.textContent = 'Удалить';
+    del.setAttribute('data-act', 'del');
+    del.setAttribute('data-id', c.id);
+    acts.appendChild(open);
+    acts.appendChild(del);
+
+    d.appendChild(nm);
+    d.appendChild(mt);
+    d.appendChild(acts);
+    box.appendChild(d);
+  });
+}
+
+function openClient(id) {
+  var c = state.clients.find(function (x) { return x.id === id; });
+  if (!c) return;
+  state.currentId = id;
+  state.photo = null;
+  state.photoImg = null;
+  $('photoStatus').textContent = 'Фотография в базе не хранится — приложите её заново, чтобы проверить.';
+  apply(c);
+  updateStatusCard();
+  update();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  toast('Открыт: ' + ((c.f_last || '') + ' ' + (c.f_first || '')).trim());
+}
+
+function delClient(id) {
+  var c = state.clients.find(function (x) { return x.id === id; });
+  if (!c) return;
+  if (!window.confirm('Удалить клиента «' + ((c.f_last || '') + ' ' + (c.f_first || '')).trim() + '» из базы?')) return;
+  state.clients = state.clients.filter(function (x) { return x.id !== id; });
+  if (state.currentId === id) {
+    state.currentId = null;
+    updateStatusCard();
+  }
+  saveClients();
+  renderList();
+  toast('Удалено');
+}
+
+function saveClient() {
+  if (!val('f_last') && !val('f_first')) { toast('Сначала впишите хотя бы фамилию и имя', true); return; }
+  var c = collect();
+  var res = validate(c);
+  var now = new Date().toISOString();
+
+  if (state.currentId) {
+    var i = -1;
+    state.clients.forEach(function (x, k) { if (x.id === state.currentId) i = k; });
+    if (i >= 0) {
+      c.id = state.currentId;
+      c.updatedAt = now;
+      state.clients[i] = Object.assign({}, state.clients[i], c);
+      c = state.clients[i];
+    } else {
+      c.id = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      c.createdAt = now;
+      c.updatedAt = now;
+      state.currentId = c.id;
+      state.clients.push(c);
+    }
+  } else {
+    c.id = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    c.createdAt = now;
+    c.updatedAt = now;
+    c.status = 'draft';
+    state.currentId = c.id;
+    state.clients.push(c);
+  }
+
+  saveClients();
+  renderList();
+  updateStatusCard();
+  saveDraft();
+  if (res.errors.length) toast('Сохранено как черновик. Замечаний: ' + res.errors.length, true);
+  else toast('Клиент сохранён');
+}
+
+function newClient() {
+  state.currentId = null;
+  state.photo = null;
+  state.photoImg = null;
+  FIELDS.forEach(function (id) {
+    var el = $(id);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = false;
+    else el.value = '';
+  });
+  state.children = [];
+  renderChildren();
+  syncSpouse();
+  $('photoStatus').textContent = 'Фото не загружено.';
+  $('photoFix').hidden = true;
+  $('photoLink').hidden = true;
+  updateStatusCard();
+  update();
+  toast('Новая заявка');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ============ статус ============ */
+function currentClient() {
+  if (!state.currentId) return null;
+  var found = null;
+  state.clients.forEach(function (x) { if (x.id === state.currentId) found = x; });
+  return found;
+}
+
+function updateStatusCard() {
+  var card = $('statusCard');
+  var c = currentClient();
+  if (!card) return;
+  card.hidden = !c;
+  if (!c) return;
+  $('stStatus').value = c.status || 'draft';
+  $('stConf').value = c.stConf || '';
+  $('stDate').value = c.stDate || '';
+}
+
+function saveStatus() {
+  var c = currentClient();
+  if (!c) return;
+  c.status = $('stStatus').value;
+  c.stConf = val('stConf');
+  c.stDate = val('stDate');
+  c.updatedAt = new Date().toISOString();
+  saveClients();
+  renderList();
+  update();
+}
+
+/* ============ копирование ============ */
+function copyAll() {
+  var c = collect();
+  var lines = [];
+  buildSections(c).forEach(function (s) {
+    if (!s.rows.length) return;
+    lines.push('');
+    lines.push('== ' + s.t + ' ==');
+    s.rows.forEach(function (r) { lines.push(r[0] + ': ' + r[1]); });
+  });
+  var text = lines.join('\n').trim();
+  if (!text) { toast('Нечего копировать', true); return; }
+  copyText(text).then(function (ok) { toast(ok ? 'Все данные скопированы' : 'Не удалось скопировать', !ok); });
+}
+
+function flash(el) {
+  el.classList.add('copied');
+  setTimeout(function () { el.classList.remove('copied'); }, 600);
+}
+
+/* ============ экспорт / импорт ============ */
+function exportJson() {
+  try {
+    var data = JSON.stringify(state.clients, null, 2);
+    var blob = new Blob([data], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var d = new Date();
+    a.href = url;
+    a.download = 'dv-clients-' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    toast('База скачана');
+  } catch (e) {
+    toast('Браузер не дал скачать файл — попробуйте другой браузер', true);
+  }
+}
+
+function importJson(ev) {
+  var f = ev.target.files && ev.target.files[0];
+  if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function () {
+    try {
+      var arr = JSON.parse(String(reader.result));
+      if (!Array.isArray(arr)) throw new Error('bad');
+      var map = {};
+      state.clients.forEach(function (c) { map[c.id] = c; });
+      arr.forEach(function (c) { if (c && c.id) map[c.id] = c; });
+      state.clients = Object.keys(map).map(function (k) { return map[k]; });
+      saveClients();
+      renderList();
+      toast('Загружено клиентов: ' + arr.length);
+    } catch (e) {
+      toast('Файл не похож на резервную копию', true);
+    }
+  };
+  reader.readAsText(f);
+  ev.target.value = '';
+}
+
+/* ============ уведомление ============ */
+function toast(msg, bad) {
+  var t = $('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.className = (bad ? 'bad ' : '') + 'show';
+  clearTimeout(t._t);
+  t._t = setTimeout(function () { t.className = bad ? 'bad' : ''; }, 2600);
+}
+
+/* ============ инициализация ============ */
+function buildCountries() {
+  var dl = $('countries');
+  if (!dl) return;
+  COUNTRIES.forEach(function (p) {
+    var o = document.createElement('option');
+    o.value = p[0];
+    o.label = p[0] + ' — ' + p[1];
+    dl.appendChild(o);
+  });
+}
+
+function bindEvents() {
+  document.addEventListener('input', function (ev) {
+    var el = ev.target;
+    if (!el || !el.dataset) return;
+    if (el.dataset.ci !== undefined) {
+      var i = parseInt(el.dataset.ci, 10);
+      if (state.children[i]) {
+        if (el.dataset.cf === 'photo') state.children[i].photo = el.checked ? '1' : '';
+        else state.children[i][el.dataset.cf] = el.value;
+      }
+    }
+    if (el.id === 'f_birthcountry' && !val('f_elig')) $('f_elig').value = el.value;
+    if (el.id === 'f_marital') syncSpouse();
+    if (el.id === 'stStatus' || el.id === 'stConf' || el.id === 'stDate') { saveStatus(); return; }
+    scheduleUpdate();
+  });
+
+  document.addEventListener('change', function (ev) {
+    var el = ev.target;
+    if (!el) return;
+    if (el.id === 'photoInput') { onPhotoFile(ev); return; }
+    if (el.id === 'importInput') { importJson(ev); return; }
+    if (el.id === 'stStatus') { saveStatus(); return; }
+  });
+
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest ? ev.target.closest('button[data-act]') : null;
+    if (!b) return;
+    var act = b.getAttribute('data-act');
+    if (act === 'translit') {
+      var t = $(b.getAttribute('data-target'));
+      if (t) {
+        var out = translit(t.value);
+        t.value = out;
+        scheduleUpdate();
+      }
+      return;
+    }
+    if (act === 'addChild') { state.children.push({}); renderChildren(); update(); return; }
+    if (act === 'delChild') { state.children.splice(parseInt(b.getAttribute('data-ci'), 10), 1); renderChildren(); update(); return; }
+    if (act === 'save') { saveClient(); return; }
+    if (act === 'new') { newClient(); return; }
+    if (act === 'copyAll') { copyAll(); return; }
+    if (act === 'print') { window.print(); return; }
+    if (act === 'export') { exportJson(); return; }
+    if (act === 'open') { openClient(b.getAttribute('data-id')); return; }
+    if (act === 'del') { delClient(b.getAttribute('data-id')); return; }
+  });
+
+  var out = $('output');
+  if (out) {
+    out.addEventListener('click', function (ev) {
+      var line = ev.target.closest ? ev.target.closest('.out-line') : null;
+      if (!line || !line.dataset.value) return;
+      copyText(line.dataset.value).then(function (ok) { if (ok) flash(line); });
+    });
+  }
+
+  var fix = $('photoFix');
+  if (fix) fix.addEventListener('click', fixPhoto);
+
+  var search = $('search');
+  if (search) search.addEventListener('input', renderList);
+}
+
+function init() {
+  buildCountries();
+  if (!storageOk()) {
+    var b = document.createElement('div');
+    b.className = 'banner';
+    b.style.borderLeftColor = '#ffb347';
+    b.style.color = '#ffd88a';
+    b.textContent = 'Браузер не даёт сохранять данные на этом адресе. База клиентов не сохранится — откройте файл через локальный сервер или разместите страницу на сайте (http/https).';
+    var layout = document.querySelector('.layout');
+    document.querySelector('.wrap').insertBefore(b, layout);
+  }
+  loadClients();
+  var draft = loadDraft();
+  if (draft) {
+    apply(draft);
+    if (draft.id && state.clients.some(function (x) { return x.id === draft.id; })) {
+      state.currentId = draft.id;
+    }
+  }
+  renderChildren();
+  syncSpouse();
+  renderList();
+  updateStatusCard();
+  bindEvents();
+  document.title = 'Анкета DV — помощник оператора';
+  update();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

@@ -1,0 +1,1278 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>TOPUS · Пояснения для налоговой</title>
+<meta name="description" content="Рабочее приложение: библиотека пояснений в ФНС, организации, статусы, генерация структурированного черновика, экспорт в Word и печать. Данные хранятся в браузере.">
+<style>
+:root{
+  --bg:#0b1013;--bg2:#0e171c;--panel:#101a20;--line:#244149;--ink:#eef4f5;--muted:#9fb8c1;--dim:#71909c;
+  --acc:#59dce4;--acc2:#2f8f97;--ok:#6ee7a8;--warn:#ffd88a;--bad:#ff7b7b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:14px/1.45 Arial,Helvetica,sans-serif}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:#0d1b22;color:var(--ink);padding:7px 12px;transition:.15s;white-space:nowrap}
+button:hover{border-color:var(--acc)}
+button.primary{background:var(--acc);border-color:var(--acc);color:#04171a;font-weight:bold}
+button.primary:hover{background:#7de9ee}
+button.mini{padding:4px 9px;font-size:12px}
+button.danger{color:#ff9b9b;border-color:#5a2a2a}
+input,select,textarea{width:100%;background:#0a1419;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;min-width:0}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 1px #59dce455}
+textarea{resize:vertical}
+.app{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+@media (max-width:900px){.app{grid-template-columns:1fr}}
+
+/* ==== sidebar ==== */
+.side{background:var(--bg2);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:14px 12px;gap:10px;height:100vh;position:sticky;top:0;overflow:auto}
+@media (max-width:900px){.side{height:auto;position:static;border-right:0;border-bottom:1px solid var(--line)}}
+.brand{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:10px}
+.brand b{font-size:19px;letter-spacing:3px}
+.brand span{font-size:10px;letter-spacing:1.4px;color:var(--acc);text-transform:uppercase}
+.side button.newdoc{width:100%;text-align:left}
+.searchrow{display:flex;gap:6px}
+.searchrow input{flex:1}
+#filterType{font-size:12.5px}
+.listhead{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim)}
+.doclist{display:flex;flex-direction:column;gap:6px;overflow:auto;flex:1;min-height:60px}
+@media (max-width:900px){.doclist{max-height:220px}}
+.docitem{border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;transition:.15s;background:#0c161c;position:relative}
+.docitem:hover{border-color:var(--acc2)}
+.docitem.active{border-color:var(--acc);background:#0f2228}
+.docitem .t{font-size:13px;font-weight:bold;line-height:1.3;word-break:break-word;padding-right:14px}
+.docitem .m{font-size:11px;color:var(--dim);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap}
+.docitem .dot{position:absolute;top:9px;right:9px;width:8px;height:8px;border-radius:50%}
+.dot.draft{background:#ffd88a}.dot.ready{background:#6ee7a8}.dot.sent{background:#7fdbe2}
+.sidefoot{border-top:1px solid var(--line);padding-top:9px;display:flex;flex-direction:column;gap:6px}
+.sidefoot .row{display:flex;gap:6px}
+.sidefoot .row button{flex:1}
+.counters{font-size:11px;color:var(--dim)}
+
+/* ==== main ==== */
+.main{overflow:auto;padding:14px 16px 40px;min-width:0}
+.empty{border:1px dashed var(--line);border-radius:14px;padding:34px 22px;text-align:center;margin-top:40px}
+.empty h2{font-size:20px;margin:0 0 8px;letter-spacing:-.2px}
+.empty p{color:var(--muted);margin:0 0 16px;font-size:13.5px}
+.actions-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:12px}
+.topbar #docTitle{flex:1;min-width:200px;font-weight:bold;font-size:14px;background:#0d1b22}
+.topbar .status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.topbar select{width:auto;font-size:12.5px;padding:6px 8px}
+.checks{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
+.chk{border-radius:999px;padding:2px 9px;font-size:11px;border:1px solid #5a4a1e;background:#2a2311;color:#ffd88a}
+.chk.ok{border-color:#22513c;background:#12281f;color:#8fe3b8}
+.cols{display:grid;grid-template-columns:minmax(340px,.95fr) minmax(360px,1.05fr);gap:14px;align-items:start}
+@media (max-width:1150px){.cols{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px;margin-bottom:10px}
+.card h3{font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);margin:0 0 8px;display:flex;justify-content:space-between;gap:8px}
+.card h3 small{text-transform:none;letter-spacing:0;color:var(--dim);font-weight:normal}
+.field{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--muted);min-width:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+@media (max-width:520px){.grid2,.grid3{grid-template-columns:1fr}}
+.hint{font-size:11px;color:var(--dim);margin-top:6px;line-height:1.45}
+.orgrow{display:flex;gap:6px;align-items:stretch}
+.orgrow select{flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{border:1px solid var(--line);background:#0d1b22;color:var(--muted);border-radius:999px;padding:3px 9px;font-size:11.5px;cursor:pointer;transition:.15s}
+.chip.on{background:#122b2f;border-color:var(--acc);color:#c9f2f5}
+.pos{display:flex;flex-direction:column;gap:4px}
+.pos label{display:flex;gap:7px;align-items:flex-start;font-size:12px;color:var(--muted);cursor:pointer}
+.pos input{width:auto;margin-top:2px;accent-color:var(--acc)}
+.preview{display:flex;flex-direction:column;gap:8px;min-width:0}
+.preview .bar{display:flex;gap:6px;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--dim)}
+.paper{background:#fff;border-radius:4px;box-shadow:0 4px 18px #0002;padding:16mm 14mm;color:#000;overflow:auto}
+@media (max-width:1150px){.paper{padding:18px}}
+.doc{font:12pt/1.5 "Times New Roman",Times,serif;color:#000;min-height:120mm}
+.doc .to{margin-left:48%}
+.doc .to div{overflow-wrap:anywhere}
+.doc .out{margin-top:16pt}
+.doc h1{font-size:14pt;letter-spacing:3px;text-align:center;font-weight:bold;margin:16pt 0 2pt}
+.doc .sub{text-align:center;font-size:12pt;margin:0 0 12pt}
+.doc p{margin:0 0 6pt}
+.doc p.body{text-indent:1.25cm;text-align:justify}
+.doc h2{font-size:12pt;font-weight:bold;margin:12pt 0 4pt}
+.doc ol.attach{margin:2pt 0 0;padding-left:22pt}
+.doc ol.attach li{margin-bottom:2pt}
+.doc .sign{margin-top:20pt}
+.doc .sign p{margin:0}
+.doc:focus{outline:none}
+.doc:empty:before{content:"Документ появится здесь после выбора типа";color:#9aa9b0}
+.badge{display:inline-block;font-size:10.5px;border-radius:999px;padding:2px 8px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.badge.warn{background:#2a2311;border-color:#5a4a1e;color:var(--warn)}
+
+/* ==== modals ==== */
+.modal{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;padding:18px;z-index:60}
+.modal[hidden]{display:none}
+.dialog{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px;width:min(720px,100%);max-height:86vh;overflow:auto}
+.dialog h2{font-size:15px;margin:0 0 4px;letter-spacing:-.2px;display:flex;justify-content:space-between;align-items:center}
+.dialog .sub{color:var(--muted);font-size:12px;margin:0 0 12px}
+.typecards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:640px){.typecards{grid-template-columns:1fr}}
+.typecard{border:1px solid var(--line);border-radius:10px;padding:10px;background:#0d1b22;text-align:left;cursor:pointer;color:var(--ink);transition:.15s}
+.typecard:hover{border-color:var(--acc);background:#0f2228}
+.typecard b{display:block;font-size:12.5px;margin-bottom:3px}
+.typecard span{font-size:11px;color:var(--dim);line-height:1.4;display:block}
+.orglist{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.orgitem{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:7px 9px;background:#0d1b22}
+.orgitem .nm{flex:1;font-size:12.5px;line-height:1.3;word-break:break-word}
+.orgitem .nm small{display:block;color:var(--dim);font-size:11px}
+.orgform{border-top:1px dashed var(--line);padding-top:12px}
+.modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(16px);background:#12281f;border:1px solid #22513c;color:#c8f2dc;padding:9px 15px;border-radius:9px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:80;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.bad{background:#2a1616;border-color:#55262a;color:#ffc9c9}
+.banner{margin:0 0 12px;background:#0f2129;border:1px solid #244149;border-left:3px solid var(--warn);padding:9px 12px;border-radius:9px;font-size:12px;color:#ffd88a}
+.printdoc{display:none}
+@media print{
+  @page{size:A4;margin:14mm 15mm}
+  html,body{background:#fff}
+  .app,.side,.main,.modal,.noprint{display:none!important}
+  .printdoc{display:block}
+  .doc{min-height:0}
+}
+</style>
+</head>
+<body>
+<div class="banner" id="lsBanner" hidden>Браузер запрещает сохранение на этом адресе — документы не сохранятся. Откройте через локальный сервер (http) или разместите файл на сайте.</div>
+<div class="app">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="side">
+    <div class="brand">
+      <div><b>TOPUS</b><br><span>пояснения в ФНС</span></div>
+      <div style="text-align:right;font-size:10px;color:var(--dim)">v1.0</div>
+    </div>
+    <button type="button" class="primary newdoc" id="btnNew">+ Новый документ</button>
+    <div class="searchrow">
+      <input id="search" placeholder="Поиск: клиент, тип, ситуация" autocomplete="off">
+    </div>
+    <select id="filterType"></select>
+    <div class="listhead"><span>Документы</span><span id="statCount"></span></div>
+    <div class="doclist" id="docList"></div>
+    <div class="sidefoot">
+      <span class="counters">Организаций: <b id="statOrgs">0</b></span>
+      <button type="button" class="mini" id="btnOrgs">Организации</button>
+      <div class="row">
+        <button type="button" class="mini" id="btnExport">Копия</button>
+        <button type="button" class="mini" id="btnImportBtn">Загрузить</button>
+        <input type="file" id="btnImport" accept="application/json,.json" hidden>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+    <div id="empty" class="empty">
+      <h2>Пояснения для налоговой</h2>
+      <p>Создайте документ: выберите тип требования, заполните реквизиты и опишите ситуацию — получите структурированный черновик.<br>Все документы хранятся в этом браузере и переживают перезагрузку.</p>
+      <div class="actions-row">
+        <button type="button" class="primary" id="btnNew2">Создать документ</button>
+        <button type="button" id="btnOrgs2">Добавить организацию</button>
+      </div>
+    </div>
+
+    <div id="editor" hidden>
+      <div class="topbar">
+        <input id="docTitle" placeholder="Название документа" autocomplete="off">
+        <label class="status">Статус
+          <select id="statusSel">
+            <option value="draft">Черновик</option>
+            <option value="ready">Готово</option>
+            <option value="sent">Отправлено</option>
+          </select>
+        </label>
+        <button type="button" class="primary" id="btnSave">Сохранить</button>
+        <button type="button" id="btnRebuild">Собрать заново</button>
+        <button type="button" id="btnCopy">Копировать</button>
+        <button type="button" id="btnDoc">.doc</button>
+        <button type="button" id="btnPrint">Печать</button>
+        <button type="button" id="btnDup" title="Дублировать">⧉</button>
+        <button type="button" class="danger" id="btnDel">Удалить</button>
+      </div>
+      <div class="checks" id="checks"></div>
+
+      <div class="cols">
+        <div class="formcol">
+          <div class="card">
+            <h3>Тип требования</h3>
+            <select id="t_type"></select>
+            <div class="hint" id="t_hint"></div>
+          </div>
+
+          <div class="card">
+            <h3>Организация <small id="orgHint"></small></h3>
+            <div class="orgrow">
+              <select id="orgPick"></select>
+              <button type="button" class="mini" id="orgApply">Взять</button>
+              <button type="button" class="mini" id="orgSaveAs" title="Сохранить реквизиты как организацию">+</button>
+            </div>
+            <div class="grid3" style="margin-top:8px">
+              <label class="field"><span>Кто</span>
+                <select id="c_kind"><option value="ooo">ООО</option><option value="ip">ИП</option><option value="npd">Самозанятый</option></select>
+              </label>
+              <label class="field"><span>ИНН</span><input id="c_inn" placeholder="7700000000"></label>
+              <label class="field"><span>КПП</span><input id="c_kpp" placeholder="770001001"></label>
+              <label class="field"><span>ОГРН / ОГРНИП</span><input id="c_ogrn" placeholder="1234567890123"></label>
+              <label class="field"><span>Название</span><input id="c_name" placeholder="ООО «Ромашка»"></label>
+              <label class="field"><span>Руководитель</span><input id="c_dir" placeholder="Иванов Иван Иванович"></label>
+              <label class="field"><span>Адрес</span><input id="c_addr" placeholder="г. Москва, ул. Ленина, д. 1"></label>
+              <label class="field"><span>Телефон</span><input id="c_phone" placeholder="+7 900 000-00-00"></label>
+              <label class="field"><span>Email</span><input id="c_email" placeholder="mail@example.ru"></label>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Требование</h3>
+            <div class="grid3">
+              <label class="field"><span>Номер</span><input id="r_no" placeholder="12345"></label>
+              <label class="field"><span>Дата</span><input type="date" id="r_date"></label>
+              <label class="field"><span>Ответ до</span><input type="date" id="r_resp"></label>
+              <label class="field" style="grid-column:span 2"><span>Инспекция</span><input id="r_insp" placeholder="ИФНС России № 5 по г. Москве"></label>
+              <label class="field"><span>Период</span><input id="r_period" placeholder="1 квартал 2026 года"></label>
+            </div>
+            <label class="field" style="margin-top:7px"><span>Что указано в требовании <small>(необязательно)</small></span>
+              <textarea id="r_text" rows="2" placeholder="Кратко, что написала налоговая"></textarea>
+            </label>
+          </div>
+
+          <div class="card">
+            <h3>Ситуация</h3>
+            <label class="field"><span>Что произошло и как было на самом деле</span>
+              <textarea id="s_facts" rows="4" placeholder="Факты, документы, даты, суммы"></textarea>
+            </label>
+            <div class="pos" style="margin-top:8px">
+              <span style="font-size:11.5px;color:var(--muted)">Позиция в ответе</span>
+              <label><input type="radio" name="pos" value="confirm"><span>Всё верно, ошибок нет</span></label>
+              <label><input type="radio" name="pos" value="explain"><span>Расхождения есть, вызваны объективными причинами</span></label>
+              <label><input type="radio" name="pos" value="fix"><span>Признаём ошибку, подадим уточнёнку</span></label>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Приложения</h3>
+            <div class="chips" id="docs"></div>
+            <label class="field" style="margin-top:7px"><span>Свои приложения (по строке)</span>
+              <textarea id="docs_custom" rows="2" placeholder="Копия договора № 5 от 01.02.2026"></textarea>
+            </label>
+          </div>
+        </div>
+
+        <div class="preview">
+          <div class="bar">
+            <span id="editState">черновик собирается</span>
+            <span class="badge" id="dirtyBadge" hidden>есть правки</span>
+          </div>
+          <div class="paper">
+            <div id="docView" class="doc" contenteditable="true" spellcheck="false" aria-label="Черновик пояснения"></div>
+          </div>
+          <div class="hint">Документ можно править прямо на листе: текст и оформление. Пока правок нет, поля слева обновляют его автоматически; после правок — кнопка «Собрать заново». Печать и .doc сохраняют это оформление.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ================= МОДАЛ: НОВЫЙ ДОКУМЕНТ ================= -->
+<div class="modal" id="modalNew" hidden>
+  <div class="dialog">
+    <h2>Новый документ <button type="button" class="mini" data-close>✕</button></h2>
+    <p class="sub">Выберите тип требования налоговой</p>
+    <div class="typecards" id="typeCards"></div>
+  </div>
+</div>
+
+<!-- ================= МОДАЛ: ОРГАНИЗАЦИИ ================= -->
+<div class="modal" id="modalOrgs" hidden>
+  <div class="dialog">
+    <h2>Организации <button type="button" class="mini" data-close>✕</button></h2>
+    <p class="sub">Реквизиты, которые подставляются в документы</p>
+    <div class="orglist" id="orgList"></div>
+    <div class="orgform">
+      <div class="grid3">
+        <label class="field"><span>Кто</span>
+          <select id="of_kind"><option value="ooo">ООО</option><option value="ip">ИП</option><option value="npd">Самозанятый</option></select>
+        </label>
+        <label class="field"><span>Название</span><input id="of_name" placeholder="ООО «Ромашка»"></label>
+        <label class="field"><span>ИНН</span><input id="of_inn" placeholder="7700000000"></label>
+        <label class="field"><span>КПП</span><input id="of_kpp" placeholder="770001001"></label>
+        <label class="field"><span>ОГРН / ОГРНИП</span><input id="of_ogrn" placeholder="1234567890123"></label>
+        <label class="field"><span>Руководитель / ФИО</span><input id="of_dir" placeholder="Иванов Иван Иванович"></label>
+        <label class="field"><span>Адрес</span><input id="of_addr" placeholder="г. Москва, ул. Ленина, д. 1"></label>
+        <label class="field"><span>Телефон</span><input id="of_phone" placeholder="+7 900 000-00-00"></label>
+        <label class="field"><span>Email</span><input id="of_email" placeholder="mail@example.ru"></label>
+      </div>
+      <div class="actions">
+        <button type="button" class="mini" id="of_cancel">Очистить</button>
+        <button type="button" class="primary" id="of_save">Сохранить организацию</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="printdoc" id="printdoc"></div>
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ================= утилиты ================= */
+  var $ = function (id) { return document.getElementById(id); };
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+  var nowIso = function () { return new Date().toISOString(); };
+  function todayIso() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function dateRu(iso) {
+    if (!iso) return '';
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+    return m ? m[3] + '.' + m[2] + '.' + m[1] : iso;
+  }
+  function newId(p) { return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function toast(msg, bad) {
+    var t = $('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.className = bad ? 'bad show' : 'show';
+    clearTimeout(t._t);
+    t._t = setTimeout(function () { t.className = bad ? 'bad' : ''; }, 2400);
+  }
+
+  /* ================= справочники ================= */
+  var DOCS = [
+    { id: 'contract', t: 'Договор (копия)' },
+    { id: 'invoice', t: 'Счёт-фактура' },
+    { id: 'act', t: 'Акт выполненных работ (услуг)' },
+    { id: 'ptor', t: 'Товарная накладная' },
+    { id: 'pay', t: 'Платёжное поручение' },
+    { id: 'statement', t: 'Выписка по расчётному счёту' },
+    { id: 'cash', t: 'Кассовые документы' },
+    { id: 'book', t: 'Книга покупок и книга продаж' },
+    { id: 'regs', t: 'Регистры налогового учёта' },
+    { id: 'calc', t: 'Расчёт и пояснительная записка' },
+    { id: 'staff', t: 'Штатное расписание' },
+    { id: 'td', t: 'Трудовые договоры' },
+    { id: 'order', t: 'Приказ (распоряжение)' },
+    { id: 'info', t: 'Справка (информационное письмо)' }
+  ];
+
+  var TYPES = {
+    vat: {
+      short: 'НДС', label: 'НДС: расхождения и налоговые разрывы',
+      reqTitle: 'о представлении пояснений по декларации по НДС',
+      hint: 'Сверяют вычеты и разрывы в цепочке контрагентов, книгу покупок и декларацию. Часто просят пояснить конкретные счета-фактуры.',
+      docs: ['invoice', 'book', 'contract', 'act', 'pay', 'regs'],
+      law: 'Пояснения представлены в порядке п. 3 ст. 88 НК РФ. Налоговые вычеты применены в соответствии с п. 2 ст. 171 и п. 1 ст. 172 НК РФ: товары (работы, услуги) приняты к учёту, использованы в операциях, облагаемых НДС, счета-фактуры оформлены и зарегистрированы по ст. 169 НК РФ. Реальность операций и деловая цель сделок подтверждаются первичными документами; положения п. 1 ст. 54.1 НК РФ соблюдены.'
+    },
+    ndfl6: {
+      short: '6-НДФЛ', label: '6-НДФЛ: зарплаты ниже МРОТ или отраслевых',
+      reqTitle: 'о представлении пояснений по расчёту 6-НДФЛ',
+      hint: 'Сравнивают выплаты с МРОТ и среднеотраслевой зарплатой по региону, просят пояснить расхождения и численность.',
+      docs: ['staff', 'td', 'calc', 'pay', 'order'],
+      law: 'Выплаты работникам произведены в соответствии с трудовыми договорами и ст. 133 ТК РФ (не ниже МРОТ с учётом регионального соглашения). НДФЛ исчислен и удержан по ст. 226 НК РФ, база определена по ст. 210 НК РФ, стандартные вычеты применены по ст. 218 НК РФ.'
+    },
+    profit: {
+      short: 'Прибыль', label: 'Налог на прибыль: убытки и расходы',
+      reqTitle: 'о представлении пояснений по декларации по налогу на прибыль',
+      hint: 'Интересует убыток, рост расходов, подозрительные контрагенты, перенос убытков прошлых лет.',
+      docs: ['contract', 'act', 'pay', 'regs', 'calc'],
+      law: 'Расходы учтены в соответствии с п. 1 ст. 252 НК РФ: документально подтверждены, экономически обоснованы и направлены на получение дохода. Убыток сформирован по данным налогового учёта и перенесён в порядке ст. 265 и ст. 283 НК РФ. Реальность и деловая цель операций подтверждаются первичными документами (п. 1 ст. 54.1 НК РФ).'
+    },
+    usn: {
+      short: 'УСН', label: 'УСН: доходы, лимиты, виды деятельности',
+      reqTitle: 'о представлении пояснений по декларации по УСН',
+      hint: 'Проверяют лимиты, кассовый метод учёта доходов, виды деятельности и признаки «дробления» бизнеса.',
+      docs: ['book', 'pay', 'regs', 'calc'],
+      law: 'Организация (ИП) применяет УСН в соответствии со ст. 346.11–346.13 НК РФ. Доходы определяются кассовым методом по ст. 346.17 НК РФ. Лимиты доходов и стоимости основных средств, установленные п. 4 ст. 346.13 НК РФ, соблюдены, условия применения режима не нарушены.'
+    },
+    patent: {
+      short: 'Патент', label: 'Патент (ПСН)',
+      reqTitle: 'о представлении пояснений в связи с применением ПСН',
+      hint: 'Спрашивают соответствие вида деятельности патенту, площади помещений и число сотрудников.',
+      docs: ['contract', 'pay', 'calc'],
+      law: 'ИП применяет патентную систему налогообложения в отношении видов деятельности, указанных в патенте (ст. 346.43 НК РФ). Доходы по патенту определяются в соответствии со ст. 346.53 НК РФ. Условия применения ПСН, предусмотренные ст. 346.45 НК РФ, соблюдены.'
+    },
+    contrib: {
+      short: 'Взносы', label: 'Страховые взносы',
+      reqTitle: 'о представлении пояснений по расчёту по страховым взносам',
+      hint: 'База, пониженные тарифы, необлагаемые выплаты, расхождения с 6-НДФЛ.',
+      docs: ['staff', 'td', 'calc', 'pay'],
+      law: 'Страховые взносы начислены в соответствии со ст. 419, 420, 421 НК РФ. Выплаты, не подлежащие обложению, определены по ст. 422 НК РФ. Расхождения с отчётностью по НДФЛ отсутствуют либо объяснены в настоящем ответе.'
+    },
+    ens: {
+      short: 'ЕНС', label: 'ЕНС: сальдо, уточнения платежей',
+      reqTitle: 'о представлении пояснений по расчётам с бюджетом (единый налоговый счёт)',
+      hint: 'Расхождения сальдо, неверные реквизиты, «зависшие» уведомления, уточнения платежей.',
+      docs: ['statement', 'pay', 'regs'],
+      law: 'Учёт расчётов ведётся через единый налоговый счёт в порядке ст. 11.3 НК РФ. Уточнения платежей произведены по ст. 45.1 НК РФ. Расхождения, указанные в требовании, связаны с обстоятельствами, изложенными в настоящем ответе, и не свидетельствуют о неисполнении обязанности по уплате.'
+    },
+    n3ndfl: {
+      short: '3-НДФЛ', label: '3-НДФЛ: вычеты и доходы',
+      reqTitle: 'о представлении пояснений по декларации 3-НДФЛ',
+      hint: 'Право на вычет, подтверждающие документы, доходы от продажи имущества.',
+      docs: ['contract', 'act', 'pay', 'statement', 'info'],
+      law: 'Вычет заявлен в соответствии со ст. 210 и ст. 218–221 НК РФ. Право на вычет подтверждается документами из приложений к настоящему ответу. Налоговая база и сумма налога определены верно.'
+    },
+    kkt: {
+      short: 'ККТ', label: 'ККТ и расчёты (54-ФЗ)',
+      reqTitle: 'о представлении пояснений по применению контрольно-кассовой техники',
+      hint: 'Сверяют выручку по кассе с поступлениями на счёт, спрашивают о сбоях и возвратах.',
+      docs: ['cash', 'statement', 'info'],
+      law: 'Расчёты осуществляются с применением контрольно-кассовой техники в соответствии с Федеральным законом от 22.05.2003 № 54-ФЗ. Кассовые чеки выдаются покупателям, сведения передаются оператору фискальных данных (ст. 1.2, 4.7 закона № 54-ФЗ). Выручка по кассе соответствует данным о поступлениях.'
+    },
+    npd: {
+      short: 'НПД', label: 'НПД: самозанятые, признаки трудовых отношений',
+      reqTitle: 'о представлении пояснений по налогу на профессиональный доход',
+      hint: 'Ищут признаки трудовых отношений: регулярные выплаты, бывшие работники, условия договора.',
+      docs: ['contract', 'act', 'pay', 'info'],
+      law: 'Налогоплательщик применяет специальный налоговый режим НПД (Федеральный закон от 27.11.2018 № 422-ФЗ). Вознаграждения получены за оказанные услуги по гражданско-правовым договорам; отношения не содержат признаков трудовых (ст. 15 ТК РФ), услуги оказаны самостоятельно, без подчинения внутреннему трудовому распорядку.'
+    },
+    docs: {
+      short: 'Документы', label: 'Требование о представлении документов (ст. 93)',
+      reqTitle: 'о представлении документов',
+      hint: 'Просят копии документов по сделке или периоду: представьте или мотивированно объясните, почему нет.',
+      docs: ['contract', 'invoice', 'act', 'pay', 'regs'],
+      law: 'Документы представлены в соответствии с п. 3 ст. 93 НК РФ в срок, установленный требованием. Документы, не относящиеся к предмету требования или отсутствующие у налогоплательщика, не представлены с указанием причин.'
+    },
+    call: {
+      short: 'Вызов', label: 'Вызов в налоговый орган (п. 4 ст. 31)',
+      reqTitle: 'о вызове в налоговый орган',
+      intro: 'В ответ на уведомление о вызове в налоговый орган',
+      subPrefix: 'по уведомлению ',
+      hint: 'Приглашают на комиссию по легализации зарплат, убыткам. Ответ короткий: явка и пояснения.',
+      docs: ['info'],
+      law: 'В соответствии с п. 4 ст. 31 НК РФ налоговый орган вправе вызывать налогоплательщиков для дачи пояснений в связи с исполнением ими налогового законодательства. Сообщаем о готовности представить пояснения и документы.'
+    }
+  };
+
+  var STATUS = { draft: 'Черновик', ready: 'Готово', sent: 'Отправлено' };
+
+  /* ================= состояние ================= */
+  var LS = 'topus_nalog_app_v1';
+  var S = { docs: [], orgs: [], lastOrgId: null };
+  var ui = { currentId: null, search: '', filter: 'all', orgEditId: null };
+
+  function getDoc(id) {
+    var f = null;
+    S.docs.forEach(function (d) { if (d.id === id) f = d; });
+    return f;
+  }
+  function cur() { return getDoc(ui.currentId); }
+  function currentDoc() { return getDoc(ui.currentId); }
+
+  function blankCompany() {
+    return { kind: 'ooo', name: '', inn: '', kpp: '', ogrn: '', addr: '', dir: '', phone: '', email: '' };
+  }
+  function pickCompany(org) {
+    var c = blankCompany();
+    if (!org) return c;
+    Object.keys(c).forEach(function (k) { if (org[k] != null) c[k] = String(org[k]); });
+    return c;
+  }
+  function defaultsDocs(typeId) {
+    var d = {};
+    DOCS.forEach(function (x) { d[x.id] = false; });
+    (TYPES[typeId].docs || []).forEach(function (id) { d[id] = true; });
+    return d;
+  }
+
+  function makeTitle(doc) {
+    return typeOf(doc.type).short + (doc.company.name ? ' — ' + doc.company.name : '');
+  }
+  function createDoc(typeId) {
+    var org = null;
+    if (S.lastOrgId) S.orgs.forEach(function (o) { if (o.id === S.lastOrgId) org = o; });
+    if (!org && S.orgs.length) org = S.orgs[0];
+    var d = {
+      id: newId('d'), type: typeId, company: pickCompany(org),
+      title: '', titleEdited: false,
+      number: '', reqDate: '', respDate: '', insp: '', period: '', reqText: '',
+      facts: '', position: 'confirm', docs: defaultsDocs(typeId), customDocs: '',
+      html: '', edited: false, status: 'draft',
+      createdAt: nowIso(), updatedAt: nowIso()
+    };
+    d.title = makeTitle(d);
+    d.html = buildHtml(d);
+    S.docs.push(d);
+    if (org) S.lastOrgId = org.id;
+    return d;
+  }
+
+  /* ================= хранилище ================= */
+  function storageOk() {
+    try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); return true; } catch (e) { return false; }
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(LS);
+      if (!raw) return;
+      var d = JSON.parse(raw);
+      if (d && Array.isArray(d.docs)) S.docs = d.docs;
+      if (d && Array.isArray(d.orgs)) S.orgs = d.orgs;
+      if (d && d.lastOrgId) S.lastOrgId = d.lastOrgId;
+      S.docs.forEach(function (doc) {
+        if (!doc.company) doc.company = blankCompany();
+        if (!doc.html) doc.html = doc.text ? textToHtml(String(doc.text)) : '';
+      });
+    } catch (e) {}
+  }
+  var saveTimer = null;
+  function save(now) {
+    if (now) { doSave(); return; }
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 250);
+  }
+  function doSave() {
+    try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {}
+  }
+
+  /* ================= генератор текста ================= */
+  function docList(doc) {
+    var list = [];
+    DOCS.forEach(function (x) { if (doc.docs[x.id]) list.push(x.t); });
+    String(doc.customDocs || '').split('\n').forEach(function (line) {
+      line = line.trim();
+      if (line) list.push(line);
+    });
+    return list;
+  }
+  function positionText(pos) {
+    if (pos === 'explain') return 'Расхождения, указанные в требовании, обусловлены обстоятельствами, изложенными выше, и не свидетельствуют о занижении налоговой базы или неполной уплате налога. Оснований для представления уточнённой отчётности не имеется.';
+    if (pos === 'fix') return 'По результатам проверки сведений, указанных в требовании, выявлена ошибка, приводящая к изменению налоговой обязанности. Уточнённая налоговая декларация (расчёт) будет представлена в порядке, предусмотренном ст. 81 НК РФ.';
+    return 'Сведения, указанные в представленной отчётности, подтверждаются первичными документами и регистрами налогового учёта. Оснований для внесения изменений и представления уточнённой отчётности не имеется.';
+  }
+  function signatureLine(doc) {
+    var c = doc.company || {};
+    var who = c.dir || '[ФИО руководителя]';
+    if (c.kind === 'ip') return 'Индивидуальный предприниматель _______________ / ' + who + ' /';
+    if (c.kind === 'npd') return 'Плательщик НПД _______________ / ' + who + ' /';
+    return 'Директор ' + (c.name || '[наименование организации]') + ' _______________ / ' + who + ' /';
+  }
+
+  /* ================= документ (HTML) ================= */
+  function buildHtml(doc) {
+    var T = typeOf(doc.type);
+    var c = doc.company || {};
+    var H = [];
+    var org = (c.kind === 'ip' || c.kind === 'npd')
+      ? (c.name || c.dir || '[ФИО]')
+      : (c.name || '[наименование организации]');
+    var inn = c.inn ? 'ИНН ' + esc(c.inn) : 'ИНН [ИНН]';
+    var kpp = (c.kind === 'ooo' && c.kpp) ? ' · КПП ' + esc(c.kpp) : '';
+    var ogrn = '';
+    if (c.ogrn && c.kind !== 'npd') ogrn = ' · ' + (c.kind === 'ip' ? 'ОГРНИП ' : 'ОГРН ') + esc(c.ogrn);
+    var reqNo = doc.number ? ' № ' + esc(doc.number) : '';
+    var reqDate = doc.reqDate ? ' от ' + esc(dateRu(doc.reqDate)) : '';
+    var respDate = doc.respDate ? esc(dateRu(doc.respDate)) : '«__» ________ 20__ г.';
+    var period = doc.period ? ' (за период: ' + esc(doc.period) + ')' : '';
+
+    var to = [];
+    to.push('В ' + esc(doc.insp || '[наименование налогового органа]'));
+    to.push('от ' + esc(org));
+    to.push(inn + kpp + ogrn);
+    if (c.addr) to.push('адрес: ' + esc(c.addr));
+    var contacts = [c.phone, c.email].filter(Boolean).join(', ');
+    if (contacts) to.push('тел./e-mail: ' + esc(contacts));
+
+    H.push('<div class="to">' + to.map(function (x) { return '<div>' + x + '</div>'; }).join('') + '</div>');
+    H.push('<div class="out">Исх. № ______ от ' + respDate + '</div>');
+    H.push('<h1>ПОЯСНЕНИЯ</h1>');
+    H.push('<div class="sub">' + esc((T.subPrefix || 'по требованию ') + T.reqTitle) + reqNo + reqDate + period + '</div>');
+    var intro = T.intro ? esc(T.intro) + reqNo + reqDate : 'В ответ на требование ' + esc(T.reqTitle) + reqNo + reqDate;
+    H.push('<p class="body">' + intro + (doc.period ? ', касающееся периода ' + esc(doc.period) : '') + ', сообщаем следующее.</p>');
+
+    var n = 1;
+    if (doc.reqText && doc.reqText.trim()) {
+      H.push('<h2>' + n++ + '. Обстоятельства, изложенные в требовании</h2>');
+      H.push('<p class="body">' + esc(doc.reqText.trim()) + '</p>');
+    }
+    H.push('<h2>' + n++ + '. Фактические обстоятельства</h2>');
+    H.push('<p class="body">' + esc(doc.facts && doc.facts.trim() ? doc.facts.trim() : '[Опишите ситуацию: что произошло, какие документы есть и почему так получилось]') + '</p>');
+    H.push('<h2>' + n++ + '. Правовое обоснование</h2>');
+    H.push('<p class="body">' + esc(T.law) + '</p>');
+    H.push('<h2>' + n++ + '. Позиция налогоплательщика</h2>');
+    H.push('<p class="body">' + esc(positionText(doc.position)) + '</p>');
+
+    var docs = docList(doc);
+    H.push('<h2>Приложения:</h2>');
+    if (!docs.length) {
+      H.push('<p class="body">Приложений нет.</p>');
+    } else {
+      H.push('<ol class="attach">' + docs.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ol>');
+    }
+    H.push('<div class="sign"><p>' + esc(signatureLine(doc)) + '</p><p>Дата: ' + respDate + '</p></div>');
+    return H.join('');
+  }
+
+  function renderDocView(d) {
+    var view = $('docView');
+    if (!view) return;
+    view.innerHTML = d.html || '';
+  }
+
+  function textToHtml(text) {
+    return '<p class="body" style="white-space:pre-wrap;text-indent:0">' + esc(text) + '</p>';
+  }
+
+  function htmlToText(html) {
+    var div = document.createElement('div');
+    div.innerHTML = html || '';
+    var parts = [];
+    function walk(node) {
+      Array.prototype.forEach.call(node.childNodes, function (ch) {
+        if (ch.nodeType === 3) { parts.push(ch.nodeValue); return; }
+        if (ch.nodeType !== 1) return;
+        var tag = ch.tagName.toLowerCase();
+        if (tag === 'br') { parts.push('\n'); return; }
+        var block = /^(p|div|h1|h2|h3|li|tr|blockquote)$/.test(tag);
+        walk(ch);
+        if (block) parts.push('\n');
+      });
+    }
+    walk(div);
+    return parts.join('').replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  /* ================= проверка заполненности ================= */
+  function checks(doc) {
+    var out = [];
+    var c = doc.company || {};
+    if (c.kind === 'ooo' && !c.name) out.push('Не указано название организации');
+    if (c.kind !== 'ooo' && !(c.dir || c.name)) out.push('Не указано ФИО');
+    if (!c.inn) out.push('Не указан ИНН');
+    if (!doc.number) out.push('Нет номера требования');
+    if (!doc.reqDate) out.push('Нет даты требования');
+    if (!doc.facts || !doc.facts.trim()) out.push('Не описана ситуация');
+    if (!docList(doc).length) out.push('Не выбраны приложения');
+    return out;
+  }
+
+  /* ================= список документов ================= */
+  function typeOf(id) { return TYPES[id] || TYPES.vat; }
+
+  function renderList() {
+    var box = $('docList');
+    box.innerHTML = '';
+    var q = ui.search.trim().toLowerCase();
+    var f = ui.filter;
+    var list = S.docs.filter(function (d) {
+      if (f !== 'all' && d.type !== f) return false;
+      if (!q) return true;
+      var hay = (d.title + ' ' + (d.company.name || '') + ' ' + (d.company.dir || '') + ' ' + (d.facts || '') + ' ' + typeOf(d.type).label).toLowerCase();
+      return hay.indexOf(q) >= 0;
+    }).sort(function (a, b) { return String(b.createdAt || '').localeCompare(String(a.createdAt || '')); });
+
+    $('statCount').textContent = 'всего ' + S.docs.length;
+    $('statOrgs').textContent = String(S.orgs.length);
+
+    if (!list.length) {
+      var e = document.createElement('div');
+      e.className = 'docitem';
+      e.style.cursor = 'default';
+      e.innerHTML = S.docs.length
+        ? '<div class="t" style="color:var(--dim);font-weight:normal">Ничего не найдено</div>'
+        : '<div class="t" style="color:var(--dim);font-weight:normal">Пока пусто — создайте документ</div>';
+      box.appendChild(e);
+      return;
+    }
+    list.forEach(function (d) {
+      var el = document.createElement('div');
+      el.className = 'docitem' + (d.id === ui.currentId ? ' active' : '');
+      el.setAttribute('data-id', d.id);
+      var dot = document.createElement('div');
+      dot.className = 'dot ' + (d.status || 'draft');
+      var t = document.createElement('div');
+      t.className = 't';
+      t.textContent = d.title || 'Без названия';
+      var m = document.createElement('div');
+      m.className = 'm';
+      m.textContent = typeOf(d.type).short + ' · ' + (d.company.name || d.company.dir || 'без организации') + ' · ' + dateRu(String(d.updatedAt).slice(0, 10));
+      el.appendChild(dot);
+      el.appendChild(t);
+      el.appendChild(m);
+      el.addEventListener('click', function () { openDoc(d.id); });
+      box.appendChild(el);
+    });
+  }
+
+  /* ================= редактор ================= */
+  function showEditor(d) {
+    if (!d.company) d.company = blankCompany();
+    if (!TYPES[d.type]) d.type = 'vat';
+    $('empty').hidden = true;
+    $('editor').hidden = false;
+    $('docTitle').value = d.title || '';
+    $('statusSel').value = d.status || 'draft';
+    $('t_type').value = d.type;
+    $('t_hint').textContent = typeOf(d.type).hint;
+    fillOrgPick(d);
+    var c = d.company || {};
+    $('c_kind').value = c.kind || 'ooo';
+    $('c_name').value = c.name || '';
+    $('c_inn').value = c.inn || '';
+    $('c_kpp').value = c.kpp || '';
+    $('c_ogrn').value = c.ogrn || '';
+    $('c_dir').value = c.dir || '';
+    $('c_addr').value = c.addr || '';
+    $('c_phone').value = c.phone || '';
+    $('c_email').value = c.email || '';
+    $('r_no').value = d.number || '';
+    $('r_date').value = d.reqDate || '';
+    $('r_resp').value = d.respDate || '';
+    $('r_insp').value = d.insp || '';
+    $('r_period').value = d.period || '';
+    $('r_text').value = d.reqText || '';
+    $('s_facts').value = d.facts || '';
+    $('docs_custom').value = d.customDocs || '';
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="pos"]'), function (r) {
+      r.checked = r.value === (d.position || 'confirm');
+    });
+    renderChips(d);
+    renderDocView(d);
+    updateDirtyUI(d);
+    renderChecks(d);
+    $('docTitle').title = d.title || '';
+  }
+
+  function fillOrgPick(d) {
+    var sel = $('orgPick');
+    sel.innerHTML = '';
+    var o = document.createElement('option');
+    o.value = '';
+    o.textContent = S.orgs.length ? '— выбрать организацию —' : '— организаций нет —';
+    sel.appendChild(o);
+    S.orgs.forEach(function (org) {
+      var op = document.createElement('option');
+      op.value = org.id;
+      op.textContent = (org.name || org.dir || '(без названия)') + (org.inn ? ' · ' + org.inn : '');
+      sel.appendChild(op);
+    });
+    $('orgHint').textContent = S.orgs.length ? '' : 'добавьте в «Организации»';
+  }
+
+  function renderChips(d) {
+    var box = $('docs');
+    box.innerHTML = '';
+    DOCS.forEach(function (x) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip' + (d.docs[x.id] ? ' on' : '');
+      b.textContent = x.t;
+      b.addEventListener('click', function () {
+        d.docs[x.id] = !d.docs[x.id];
+        b.className = 'chip' + (d.docs[x.id] ? ' on' : '');
+        touchDoc(d);
+      });
+      box.appendChild(b);
+    });
+  }
+
+  function renderChecks(d) {
+    var box = $('checks');
+    box.innerHTML = '';
+    var list = checks(d);
+    if (!list.length) {
+      var ok = document.createElement('span');
+      ok.className = 'chk ok';
+      ok.textContent = '✓ Данных достаточно';
+      box.appendChild(ok);
+      return;
+    }
+    list.forEach(function (t) {
+      var s = document.createElement('span');
+      s.className = 'chk';
+      s.textContent = '! ' + t;
+      box.appendChild(s);
+    });
+  }
+
+  function updateDirtyUI(d) {
+    $('dirtyBadge').hidden = !d.edited;
+    $('editState').textContent = d.edited ? 'черновик с вашими правками' : 'черновик собирается автоматически';
+    $('editState').className = 'badge' + (d.edited ? ' warn' : '');
+  }
+
+  /* любое изменение данных документа */
+  function touchDoc(d, silent) {
+    d.updatedAt = nowIso();
+    if (!d.edited) {
+      d.html = buildHtml(d);
+      renderDocView(d);
+    }
+    renderChecks(d);
+    updateDirtyUI(d);
+    save();
+  }
+
+  function openDoc(id) {
+    ui.currentId = id;
+    var d = getDoc(id);
+    if (!d) { renderEmpty(); return; }
+    showEditor(d);
+    renderList();
+  }
+
+  function renderEmpty() {
+    ui.currentId = null;
+    $('editor').hidden = true;
+    $('empty').hidden = false;
+    renderList();
+  }
+
+  function rebuild(d) {
+    d.html = buildHtml(d);
+    d.edited = false;
+    d.updatedAt = nowIso();
+    renderDocView(d);
+    updateDirtyUI(d);
+    renderChecks(d);
+    save();
+    renderList();
+    toast('Документ собран заново');
+  }
+
+  /* ================= документ: скачивание ================= */
+  function downloadDoc(d) {
+    try {
+      var styles = '<style>' +
+        '.doc{font-family:"Times New Roman",serif;font-size:12pt;line-height:1.5;color:#000}' +
+        '.doc .to{margin-left:48%}' +
+        '.doc .out{margin-top:16pt}' +
+        '.doc h1{text-align:center;font-size:14pt;letter-spacing:3px;margin:16pt 0 2pt}' +
+        '.doc .sub{text-align:center;margin:0 0 12pt}' +
+        '.doc p{margin:0 0 6pt}' +
+        '.doc p.body{text-indent:1.25cm;text-align:justify}' +
+        '.doc h2{font-size:12pt;margin:12pt 0 4pt}' +
+        '.doc ol.attach{margin:2pt 0 0;padding-left:22pt}' +
+        '.doc .sign{margin-top:20pt}' +
+        '</style>';
+      var html = '<html><head><meta charset="utf-8"><title>' + esc(d.title || 'Пояснение') + '</title>' + styles + '</head><body>' +
+        '<div class="doc">' + (d.html || '') + '</div></body></html>';
+      var blob = new Blob(['\ufeff' + html], { type: 'application/msword' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = ((d.title || 'пояснение').replace(/[\\/:*?"<>|]/g, '-') + '.doc');
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      toast('Файл .doc скачан');
+    } catch (e) { toast('Браузер не дал скачать файл', true); }
+  }
+
+  function copyText(d) {
+    var text = htmlToText(d.html || '');
+    var done = function (ok) { toast(ok ? 'Текст скопирован' : 'Не удалось скопировать', !ok); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }).catch(function () { done(fallbackCopy(text)); });
+    } else done(fallbackCopy(text));
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+
+  function printDoc(d) {
+    var pd = $('printdoc');
+    pd.className = 'printdoc doc';
+    pd.innerHTML = d.html || '';
+    window.print();
+  }
+
+  /* ================= новые документы ================= */
+  function renderTypeCards() {
+    var box = $('typeCards');
+    box.innerHTML = '';
+    Object.keys(TYPES).forEach(function (id) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'typecard';
+      b.innerHTML = '<b>' + esc(TYPES[id].label) + '</b><span>' + esc(TYPES[id].hint) + '</span>';
+      b.addEventListener('click', function () {
+        closeModals();
+        var d = createDoc(id);
+        save(true);
+        openDoc(d.id);
+        toast('Документ создан');
+      });
+      box.appendChild(b);
+    });
+  }
+
+  /* ================= организации ================= */
+  function renderOrgs() {
+    var box = $('orgList');
+    box.innerHTML = '';
+    if (!S.orgs.length) {
+      var e = document.createElement('div');
+      e.className = 'hint';
+      e.textContent = 'Организаций пока нет — заполните форму ниже и сохраните.';
+      box.appendChild(e);
+    }
+    S.orgs.forEach(function (o) {
+      var row = document.createElement('div');
+      row.className = 'orgitem';
+      var nm = document.createElement('div');
+      nm.className = 'nm';
+      nm.innerHTML = '<b>' + esc(o.name || o.dir || '(без названия)') + '</b><small>' + esc((o.kind === 'ooo' ? 'ООО' : o.kind === 'ip' ? 'ИП' : 'Самозанятый') + (o.inn ? ' · ИНН ' + o.inn : '')) + '</small>';
+      row.appendChild(nm);
+      if (ui.currentId) {
+        var use = document.createElement('button');
+        use.type = 'button';
+        use.className = 'mini';
+        use.textContent = 'В документ';
+        use.addEventListener('click', function () {
+          var d = cur();
+          if (!d) return;
+          d.company = pickCompany(o);
+          fillCompanyFields(d);
+          S.lastOrgId = o.id;
+          if (!d.titleEdited) { d.title = makeTitle(d); $('docTitle').value = d.title; }
+          touchDoc(d);
+          closeModals();
+          toast('Реквизиты подставлены');
+        });
+        row.appendChild(use);
+      }
+      var ed = document.createElement('button');
+      ed.type = 'button';
+      ed.className = 'mini';
+      ed.textContent = 'Изменить';
+      ed.addEventListener('click', function () { editOrg(o); });
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'mini danger';
+      del.textContent = '✕';
+      del.addEventListener('click', function () {
+        if (!window.confirm('Удалить организацию «' + (o.name || o.dir || '') + '»?')) return;
+        S.orgs = S.orgs.filter(function (x) { return x.id !== o.id; });
+        if (S.lastOrgId === o.id) S.lastOrgId = null;
+        save(true);
+        renderOrgs();
+        renderList();
+      });
+      row.appendChild(ed);
+      row.appendChild(del);
+      box.appendChild(row);
+    });
+  }
+
+  function editOrg(o) {
+    ui.orgEditId = o ? o.id : null;
+    $('of_kind').value = o ? o.kind : 'ooo';
+    $('of_name').value = o ? o.name : '';
+    $('of_inn').value = o ? o.inn : '';
+    $('of_kpp').value = o ? o.kpp : '';
+    $('of_ogrn').value = o ? o.ogrn : '';
+    $('of_dir').value = o ? o.dir : '';
+    $('of_addr').value = o ? o.addr : '';
+    $('of_phone').value = o ? o.phone : '';
+    $('of_email').value = o ? o.email : '';
+  }
+
+  function saveOrgFromForm() {
+    var o = {
+      id: ui.orgEditId || newId('o'),
+      kind: $('of_kind').value,
+      name: $('of_name').value.trim(),
+      inn: $('of_inn').value.trim(),
+      kpp: $('of_kpp').value.trim(),
+      ogrn: $('of_ogrn').value.trim(),
+      dir: $('of_dir').value.trim(),
+      addr: $('of_addr').value.trim(),
+      phone: $('of_phone').value.trim(),
+      email: $('of_email').value.trim()
+    };
+    if (!o.name && !o.dir) { toast('Укажите название или ФИО', true); return; }
+    if (ui.orgEditId) {
+      S.orgs = S.orgs.map(function (x) { return x.id === ui.orgEditId ? o : x; });
+    } else {
+      S.orgs.push(o);
+    }
+    S.lastOrgId = o.id;
+    save(true);
+    renderOrgs();
+    editOrg(null);
+    renderList();
+    if (ui.currentId) fillOrgPick(cur());
+    toast('Организация сохранена');
+  }
+
+  function fillCompanyFields(d) {
+    var c = d.company;
+    $('c_kind').value = c.kind || 'ooo';
+    $('c_name').value = c.name || '';
+    $('c_inn').value = c.inn || '';
+    $('c_kpp').value = c.kpp || '';
+    $('c_ogrn').value = c.ogrn || '';
+    $('c_dir').value = c.dir || '';
+    $('c_addr').value = c.addr || '';
+    $('c_phone').value = c.phone || '';
+    $('c_email').value = c.email || '';
+  }
+
+  /* ================= модалки ================= */
+  function openModal(id) { $(id).hidden = false; }
+  function closeModals() {
+    $('modalNew').hidden = true;
+    $('modalOrgs').hidden = true;
+  }
+
+  /* ================= привязки ================= */
+  function bind() {
+    $('btnNew').addEventListener('click', function () { renderTypeCards(); openModal('modalNew'); });
+    $('btnNew2').addEventListener('click', function () { renderTypeCards(); openModal('modalNew'); });
+    $('btnOrgs').addEventListener('click', function () { renderOrgs(); editOrg(null); openModal('modalOrgs'); });
+    $('btnOrgs2').addEventListener('click', function () { renderOrgs(); editOrg(null); openModal('modalOrgs'); });
+    $('of_save').addEventListener('click', saveOrgFromForm);
+    $('of_cancel').addEventListener('click', function () { editOrg(null); });
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (b) {
+      b.addEventListener('click', closeModals);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.modal'), function (m) {
+      m.addEventListener('click', function (ev) { if (ev.target === m) closeModals(); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModals();
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        var d = cur();
+        if (d) { save(true); toast('Сохранено'); renderList(); }
+      }
+    });
+
+    $('search').addEventListener('input', function () { ui.search = $('search').value; renderList(); });
+    $('filterType').addEventListener('change', function () { ui.filter = $('filterType').value; renderList(); });
+
+    $('docTitle').addEventListener('input', function () {
+      var d = cur(); if (!d) return;
+      d.title = $('docTitle').value;
+      d.titleEdited = true;
+      d.updatedAt = nowIso();
+      save();
+      renderList();
+    });
+    $('statusSel').addEventListener('change', function () {
+      var d = cur(); if (!d) return;
+      d.status = $('statusSel').value;
+      d.updatedAt = nowIso();
+      save();
+      renderList();
+    });
+    $('t_type').addEventListener('change', function () {
+      var d = cur(); if (!d) return;
+      d.type = $('t_type').value;
+      d.docs = defaultsDocs(d.type);
+      if (!d.titleEdited) { d.title = makeTitle(d); $('docTitle').value = d.title; }
+      $('t_hint').textContent = typeOf(d.type).hint;
+      renderChips(d);
+      touchDoc(d);
+    });
+
+    /* организация в документе */
+    $('orgApply').addEventListener('click', function () {
+      var d = cur(); if (!d) return;
+      var id = $('orgPick').value;
+      if (!id) { toast('Выберите организацию', true); return; }
+      var org = null;
+      S.orgs.forEach(function (o) { if (o.id === id) org = o; });
+      if (!org) return;
+      d.company = pickCompany(org);
+      S.lastOrgId = org.id;
+      fillCompanyFields(d);
+      if (!d.titleEdited) { d.title = makeTitle(d); $('docTitle').value = d.title; }
+      touchDoc(d);
+      toast('Реквизиты подставлены');
+    });
+    $('orgSaveAs').addEventListener('click', function () {
+      var d = cur(); if (!d) return;
+      var c = d.company;
+      if (!c.name && !c.dir) { toast('Сначала заполните название или ФИО', true); return; }
+      var o = Object.assign({ id: newId('o') }, c);
+      S.orgs.push(o);
+      S.lastOrgId = o.id;
+      save(true);
+      renderList();
+      fillOrgPick(d);
+      toast('Организация сохранена в справочник');
+    });
+
+    /* поля компании */
+    [['c_kind', 'kind'], ['c_name', 'name'], ['c_inn', 'inn'], ['c_kpp', 'kpp'], ['c_ogrn', 'ogrn'],
+     ['c_dir', 'dir'], ['c_addr', 'addr'], ['c_phone', 'phone'], ['c_email', 'email']].forEach(function (p) {
+      $(p[0]).addEventListener('input', function () {
+        var d = cur(); if (!d) return;
+        d.company[p[1]] = $(p[0]).value;
+        if (p[1] === 'name' && !d.titleEdited) { d.title = makeTitle(d); $('docTitle').value = d.title; }
+        touchDoc(d);
+      });
+    });
+    $('c_kind').addEventListener('change', function () {
+      var d = cur(); if (!d) return;
+      d.company.kind = $('c_kind').value;
+      touchDoc(d);
+    });
+
+    /* поля требования */
+    [['r_no', 'number'], ['r_insp', 'insp'], ['r_period', 'period'], ['r_text', 'reqText'], ['s_facts', 'facts'], ['docs_custom', 'customDocs']].forEach(function (p) {
+      $(p[0]).addEventListener('input', function () {
+        var d = cur(); if (!d) return;
+        d[p[1]] = $(p[0]).value;
+        touchDoc(d);
+      });
+    });
+    $('r_date').addEventListener('change', function () {
+      var d = cur(); if (!d) return;
+      d.reqDate = $('r_date').value;
+      touchDoc(d);
+    });
+    $('r_resp').addEventListener('change', function () {
+      var d = cur(); if (!d) return;
+      d.respDate = $('r_resp').value;
+      touchDoc(d);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="pos"]'), function (r) {
+      r.addEventListener('change', function () {
+        var d = cur(); if (!d) return;
+        d.position = r.value;
+        touchDoc(d);
+      });
+    });
+
+    /* текст */
+    $('docView').addEventListener('input', function () {
+      var d = cur(); if (!d) return;
+      d.html = $('docView').innerHTML;
+      d.edited = true;
+      d.updatedAt = nowIso();
+      updateDirtyUI(d);
+      save();
+    });
+
+    /* действия */
+    $('btnSave').addEventListener('click', function () {
+      var d = cur(); if (!d) return;
+      d.updatedAt = nowIso();
+      save(true);
+      renderList();
+      renderChecks(d);
+      toast('Сохранено');
+    });
+    $('btnRebuild').addEventListener('click', function () { var d = cur(); if (d) rebuild(d); });
+    $('btnCopy').addEventListener('click', function () { var d = cur(); if (d) copyText(d); });
+    $('btnDoc').addEventListener('click', function () { var d = cur(); if (d) downloadDoc(d); });
+    $('btnPrint').addEventListener('click', function () { var d = cur(); if (d) printDoc(d); });
+    $('btnDel').addEventListener('click', function () {
+      var d = cur(); if (!d) return;
+      if (!window.confirm('Удалить документ «' + (d.title || '') + '»?')) return;
+      S.docs = S.docs.filter(function (x) { return x.id !== d.id; });
+      save(true);
+      renderEmpty();
+      toast('Удалено');
+    });
+    $('btnDup').addEventListener('click', function () {
+      var d = cur(); if (!d) return;
+      var copy = JSON.parse(JSON.stringify(d));
+      copy.id = newId('d');
+      copy.title = (d.title || 'Документ') + ' (копия)';
+      copy.createdAt = nowIso();
+      copy.updatedAt = nowIso();
+      S.docs.push(copy);
+      save(true);
+      openDoc(copy.id);
+      toast('Копия создана');
+    });
+
+    /* резервные копии */
+    $('btnExport').addEventListener('click', function () {
+      try {
+        var data = JSON.stringify({ v: 1, savedAt: nowIso(), docs: S.docs, orgs: S.orgs, lastOrgId: S.lastOrgId }, null, 2);
+        var blob = new Blob([data], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        var dt = new Date();
+        a.href = url;
+        a.download = 'topus-nalog-' + dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()) + '.json';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+        toast('Копия скачана');
+      } catch (e) { toast('Браузер не дал скачать файл', true); }
+    });
+    $('btnImportBtn').addEventListener('click', function () { $('btnImport').click(); });
+    $('btnImport').addEventListener('change', function (ev) {
+      var f = ev.target.files && ev.target.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        try {
+          var d = JSON.parse(String(reader.result));
+          if (!d || !Array.isArray(d.docs) || !Array.isArray(d.orgs)) throw new Error('bad');
+          var docsById = {};
+          S.docs.forEach(function (x) { docsById[x.id] = x; });
+          d.docs.forEach(function (x) { if (x && x.id) docsById[x.id] = x; });
+          S.docs = Object.keys(docsById).map(function (k) { return docsById[k]; });
+          var orgById = {};
+          S.orgs.forEach(function (x) { orgById[x.id] = x; });
+          d.orgs.forEach(function (x) { if (x && x.id) orgById[x.id] = x; });
+          S.orgs = Object.keys(orgById).map(function (k) { return orgById[k]; });
+          save(true);
+          renderList();
+          if (ui.currentId && !getDoc(ui.currentId)) renderEmpty();
+          toast('Импорт выполнен: документов ' + S.docs.length + ', организаций ' + S.orgs.length);
+        } catch (e) {
+          toast('Файл не похож на резервную копию', true);
+        }
+      };
+      reader.readAsText(f);
+      ev.target.value = '';
+    });
+  }
+
+  /* ================= запуск ================= */
+  function init() {
+    if (!storageOk()) $('lsBanner').hidden = false;
+    load();
+    var sel = $('filterType');
+    var all = document.createElement('option');
+    all.value = 'all'; all.textContent = 'Все типы';
+    sel.appendChild(all);
+    Object.keys(TYPES).forEach(function (id) {
+      var o = document.createElement('option');
+      o.value = id; o.textContent = TYPES[id].short + ' — ' + TYPES[id].label;
+      sel.appendChild(o);
+    });
+    var tsel = $('t_type');
+    Object.keys(TYPES).forEach(function (id) {
+      var o = document.createElement('option');
+      o.value = id; o.textContent = TYPES[id].label;
+      tsel.appendChild(o);
+    });
+    bind();
+    renderList();
+    if (!S.docs.length) renderEmpty();
+    else openDoc(S.docs[0].id);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>

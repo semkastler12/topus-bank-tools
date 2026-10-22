@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>TOPUS · Договор займа между физлицами</title>
+<meta name="description" content="Генератор договора займа между физическими лицами: стороны, сумма прописью, срок, проценты, порядок возврата — готовый черновик с печатью и экспортом в Word.">
+<style>
+:root{
+  --bg:#0b1013;--bg2:#0e171c;--panel:#101a20;--line:#244149;--ink:#eef4f5;--muted:#9fb8c1;--dim:#71909c;
+  --acc:#59dce4;--acc2:#2f8f97;--ok:#6ee7a8;--warn:#ffd88a;--bad:#ff7b7b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:14px/1.45 Arial,Helvetica,sans-serif}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:#0d1b22;color:var(--ink);padding:7px 12px;transition:.15s;white-space:nowrap}
+button:hover{border-color:var(--acc)}
+button.primary{background:var(--acc);border-color:var(--acc);color:#04171a;font-weight:bold}
+button.primary:hover{background:#7de9ee}
+button.mini{padding:4px 9px;font-size:12px}
+button.danger{color:#ff9b9b;border-color:#5a2a2a}
+input,select,textarea{width:100%;background:#0a1419;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;min-width:0}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 1px #59dce455}
+textarea{resize:vertical}
+.wrap{display:grid;grid-template-columns:430px minmax(0,1fr);gap:18px;padding:16px;max-width:1500px;margin:0 auto}
+@media (max-width:1050px){.wrap{grid-template-columns:1fr}}
+.panel{display:flex;flex-direction:column;gap:12px}
+.brand{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:10px}
+.brand b{font-size:20px;letter-spacing:3px}
+.brand span{font-size:11px;letter-spacing:1.6px;color:var(--acc);text-transform:uppercase}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.card h2{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);margin:0 0 9px;display:flex;justify-content:space-between;gap:8px}
+.card h2 small{text-transform:none;letter-spacing:0;color:var(--dim);font-weight:normal;font-size:11px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--muted);min-width:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+@media (max-width:520px){.grid2,.grid3{grid-template-columns:1fr}}
+.hint{font-size:11px;color:var(--dim);margin-top:6px;line-height:1.45}
+.warn{font-size:11px;color:var(--warn);margin-top:6px;line-height:1.45}
+.checks{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chk{border-radius:999px;padding:2px 9px;font-size:11px;border:1px solid #5a4a1e;background:#2a2311;color:var(--warn)}
+.chk.ok{border-color:#22513c;background:#12281f;color:#8fe3b8}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.preview{display:flex;flex-direction:column;gap:8px;min-width:0}
+.preview .bar{display:flex;gap:6px;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--dim)}
+.badge{display:inline-block;font-size:10.5px;border-radius:999px;padding:2px 8px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.badge.warn{background:#2a2311;border-color:#5a4a1e;color:var(--warn)}
+.paper{background:#fff;border-radius:4px;box-shadow:0 4px 18px #0002;padding:16mm 14mm;color:#000;overflow:auto}
+@media (max-width:1150px){.paper{padding:18px}}
+.doc{font:12pt/1.5 "Times New Roman",Times,serif;color:#000;min-height:140mm}
+.doc .date{text-align:right}
+.doc h1{font-size:14pt;letter-spacing:1px;text-align:center;font-weight:bold;margin:14pt 0 10pt}
+.doc p{margin:0 0 6pt}
+.doc p.body{text-indent:1.25cm;text-align:justify}
+.doc h2{font-size:12pt;font-weight:bold;margin:12pt 0 4pt}
+.doc ol,.doc ul{margin:2pt 0 6pt;padding-left:20pt}
+.doc li{margin-bottom:3pt;text-align:justify}
+.doc .sign{margin-top:18pt;display:grid;grid-template-columns:1fr 1fr;gap:10pt}
+.doc .sign div{font-size:11pt;line-height:1.45}
+.doc .sign .line{margin-top:22pt}
+.doc:focus{outline:none}
+.doc:empty:before{content:"Договор появится здесь";color:#9aa9b0}
+.printdoc{display:none}
+@media print{
+  @page{size:A4;margin:14mm 15mm}
+  html,body{background:#fff}
+  .wrap,.panel,.preview{display:none!important}
+  .printdoc{display:block}
+  .doc{min-height:0}
+}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(16px);background:#12281f;border:1px solid #22513c;color:#c8f2dc;padding:9px 15px;border-radius:9px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:80;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.bad{background:#2a1616;border-color:#55262a;color:#ffc9c9}
+.banner{margin:0 0 12px;background:#0f2129;border:1px solid #244149;border-left:3px solid var(--warn);padding:9px 12px;border-radius:9px;font-size:12px;color:#ffd88a}
+</style>
+</head>
+<body>
+<div class="banner" id="lsBanner" hidden>Браузер запрещает сохранение на этом адресе — черновик не сохранится. Откройте через локальный сервер (http) или разместите файл на сайте.</div>
+<div class="wrap">
+  <!-- ================= ПАНЕЛЬ ================= -->
+  <section class="panel">
+    <div class="brand">
+      <div><b>TOPUS</b><br><span>договор займа</span></div>
+      <div style="text-align:right;font-size:10px;color:var(--dim)">между физлицами</div>
+    </div>
+    <div class="checks" id="checks"></div>
+
+    <div class="card">
+      <h2>Договор</h2>
+      <div class="grid3">
+        <label class="field"><span>Номер</span><input id="num" placeholder="1"></label>
+        <label class="field"><span>Дата</span><input type="date" id="date"></label>
+        <label class="field"><span>Место</span><input id="place" placeholder="г. Москва"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Займодавец <small>кто даёт деньги</small></h2>
+      <div class="grid2">
+        <label class="field" style="grid-column:span 2"><span>ФИО</span><input id="l_name" placeholder="Иванов Иван Иванович"></label>
+        <label class="field"><span>Паспорт (серия, номер)</span><input id="l_pass" placeholder="45 00 123456"></label>
+        <label class="field"><span>Кем выдан и дата</span><input id="l_issued" placeholder="ОВД Тверского района г. Москвы, 12.01.2010"></label>
+        <label class="field" style="grid-column:span 2"><span>Адрес регистрации</span><input id="l_addr" placeholder="г. Москва, ул. Ленина, д. 1, кв. 2"></label>
+        <label class="field"><span>Телефон</span><input id="l_phone" placeholder="+7 900 000-00-00"></label>
+        <label class="field"><span>Email</span><input id="l_email" placeholder="mail@example.ru"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Заёмщик <small>кто берёт деньги</small></h2>
+      <div class="grid2">
+        <label class="field" style="grid-column:span 2"><span>ФИО</span><input id="b_name" placeholder="Петров Пётр Петрович"></label>
+        <label class="field"><span>Паспорт (серия, номер)</span><input id="b_pass" placeholder="45 01 654321"></label>
+        <label class="field"><span>Кем выдан и дата</span><input id="b_issued" placeholder="ОВД Тверского района г. Москвы, 05.03.2012"></label>
+        <label class="field" style="grid-column:span 2"><span>Адрес регистрации</span><input id="b_addr" placeholder="г. Москва, ул. Пушкина, д. 3, кв. 4"></label>
+        <label class="field"><span>Телефон</span><input id="b_phone" placeholder="+7 900 111-22-33"></label>
+        <label class="field"><span>Email</span><input id="b_email" placeholder="mail@example.ru"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Сумма и проценты</h2>
+      <div class="grid2">
+        <label class="field"><span>Сумма займа, ₽</span><input type="number" id="sum" min="0" step="1000" placeholder="100000"></label>
+        <label class="field"><span>Проценты</span>
+          <select id="itype">
+            <option value="free" selected>Беспроцентный</option>
+            <option value="rate">Под процент</option>
+          </select>
+        </label>
+        <label class="field"><span>Ставка, % годовых</span><input type="number" id="rate" min="0" step="0.1" value="5" disabled></label>
+        <label class="field"><span>Уплата процентов</span>
+          <select id="ipay">
+            <option value="final" selected>Одновременно с возвратом займа</option>
+            <option value="monthly">Ежемесячно</option>
+            <option value="advance">Авансом за весь срок</option>
+          </select>
+        </label>
+      </div>
+      <div class="hint" id="sumWords">—</div>
+      <div class="hint" id="calcHint"></div>
+    </div>
+
+    <div class="card">
+      <h2>Срок и порядок возврата</h2>
+      <div class="grid2">
+        <label class="field"><span>Срок возврата</span>
+          <select id="dtype">
+            <option value="date" selected>До даты</option>
+            <option value="demand">По требованию</option>
+          </select>
+        </label>
+        <label class="field"><span>Дата возврата</span><input type="date" id="ddate"></label>
+        <label class="field" style="grid-column:span 2"><span>Порядок возврата</span>
+          <select id="rplan">
+            <option value="single" selected>Одним платежом</option>
+            <option value="parts">Частями по графику</option>
+          </select>
+        </label>
+        <label class="field" style="grid-column:span 2"><span>График или условия возврата</span>
+          <input id="rtext" placeholder="например: по 10 000 ₽ ежемесячно не позднее 10-го числа">
+        </label>
+      </div>
+      <div class="hint">Если выбрать «по требованию», заёмщик возвращает деньги в течение 30 дней со дня требования (ст. 810 ГК РФ).</div>
+    </div>
+
+    <div class="card">
+      <h2>Условия и защита</h2>
+      <div class="grid2">
+        <label class="field"><span>Как передаются деньги</span>
+          <select id="method">
+            <option value="cash" selected>Наличными</option>
+            <option value="transfer">Переводом на счёт</option>
+          </select>
+        </label>
+        <label class="field"><span>Ответственность за просрочку</span>
+          <select id="pen">
+            <option value="pct" selected>Пени 0,1 % в день</option>
+            <option value="law">Проценты по ст. 395 ГК РФ</option>
+          </select>
+        </label>
+        <label class="field"><span>Споры</span>
+          <select id="court">
+            <option value="law" selected>По закону (по месту жительства ответчика)</option>
+            <option value="lender">По месту жительства займодавца</option>
+          </select>
+        </label>
+        <label class="field"><span>Обеспечение (необязательно)</span>
+          <select id="secure">
+            <option value="none" selected>Нет</option>
+            <option value="guarantee">Поручительство</option>
+            <option value="pledge">Залог</option>
+          </select>
+        </label>
+      </div>
+      <label class="field" style="margin-top:7px"><span>Дополнительные условия (необязательно)</span>
+        <textarea id="extra" rows="2" placeholder="Например: заём предоставляется на ремонт квартиры"></textarea>
+      </label>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="btnRebuild">Собрать заново</button>
+      <button type="button" id="btnCopy">Копировать</button>
+      <button type="button" id="btnDoc">.doc</button>
+      <button type="button" id="btnPrint">Печать</button>
+      <button type="button" class="danger" id="btnNew">Новый договор</button>
+    </div>
+  </section>
+
+  <!-- ================= ДОКУМЕНТ ================= -->
+  <section class="preview">
+    <div class="bar">
+      <span id="editState">договор собирается</span>
+      <span class="badge" id="dirtyBadge" hidden>есть правки</span>
+    </div>
+    <div class="paper">
+      <div id="docView" class="doc" contenteditable="true" spellcheck="false" aria-label="Черновик договора"></div>
+    </div>
+    <div class="hint">Договор можно править прямо на листе. Пока правок нет, поля слева обновляют его автоматически; после правок — кнопка «Собрать заново». Печать и .doc сохраняют оформление.</div>
+  </section>
+</div>
+
+<div class="printdoc" id="printdoc"></div>
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ================= утилиты ================= */
+  var $ = function (id) { return document.getElementById(id); };
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+  function todayIso() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function dateRu(iso) {
+    if (!iso) return '«__» ________ 20__ г.';
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+    return m ? '«' + m[3] + '» ' + ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'][+m[2] - 1] + ' ' + m[1] + ' г.' : iso;
+  }
+  function shortDate(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    return m ? m[3] + '.' + m[2] + '.' + m[1] : '[дата возврата]';
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function fmt(n) { return Number(n || 0).toLocaleString('ru-RU') + ' ₽'; }
+  function toast(msg, bad) {
+    var t = $('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.className = bad ? 'bad show' : 'show';
+    clearTimeout(t._t);
+    t._t = setTimeout(function () { t.className = bad ? 'bad' : ''; }, 2400);
+  }
+
+  /* ================= сумма прописью ================= */
+  var ONES = ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'];
+  var ONES_F = ['', 'одна', 'две', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'];
+  var TEENS = ['десять', 'одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 'пятнадцать', 'шестнадцать', 'семнадцать', 'восемнадцать', 'девятнадцать'];
+  var TENS = ['', '', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'];
+  var HUND = ['', 'сто', 'двести', 'триста', 'четыреста', 'пятьсот', 'шестьсот', 'семьсот', 'восемьсот', 'девятьсот'];
+  function plural(n, forms) {
+    var n100 = n % 100, n10 = n % 10;
+    if (n100 >= 11 && n100 <= 14) return forms[2];
+    if (n10 === 1) return forms[0];
+    if (n10 >= 2 && n10 <= 4) return forms[1];
+    return forms[2];
+  }
+  function triad(n, female) {
+    var arr = female ? ONES_F : ONES;
+    var out = [HUND[Math.floor(n / 100)]];
+    var r = n % 100;
+    if (r >= 10 && r < 20) out.push(TEENS[r - 10]);
+    else { out.push(TENS[Math.floor(r / 10)]); out.push(arr[r % 10]); }
+    return out.filter(Boolean).join(' ');
+  }
+  function rublText(sum) {
+    sum = Math.round(sum * 100) / 100;
+    var rub = Math.floor(sum);
+    var kop = Math.round((sum - rub) * 100);
+    if (kop === 100) { rub += 1; kop = 0; }
+    var groups = [];
+    var n = rub;
+    if (n === 0) groups = ['ноль'];
+    else {
+      var scaled = [
+        null,
+        { forms: ['тысяча', 'тысячи', 'тысяч'], female: true },
+        { forms: ['миллион', 'миллиона', 'миллионов'], female: false },
+        { forms: ['миллиард', 'миллиарда', 'миллиардов'], female: false }
+      ];
+      var parts = [], idx = 0;
+      while (n > 0 && idx < 4) {
+        var part = n % 1000;
+        n = Math.floor(n / 1000);
+        if (part) {
+          var sc = scaled[idx];
+          var w = triad(part, sc ? sc.female : false);
+          if (sc) w += ' ' + plural(part, sc.forms);
+          parts.unshift(w.trim());
+        }
+        idx++;
+      }
+      groups = parts;
+    }
+    var text = groups.join(' ');
+    text = text.charAt(0).toUpperCase() + text.slice(1);
+    return text + ' ' + plural(rub, ['рубль', 'рубля', 'рублей']) + ' ' + pad(kop) + ' ' + plural(kop, ['копейка', 'копейки', 'копеек']);
+  }
+
+  /* ================= состояние ================= */
+  var LS = 'topus_zaim_v1';
+  var S = {
+    num: '', date: todayIso(), place: '',
+    lender: { name: '', pass: '', issued: '', addr: '', phone: '', email: '' },
+    borrower: { name: '', pass: '', issued: '', addr: '', phone: '', email: '' },
+    sum: 0, itype: 'free', rate: 5, ipay: 'final',
+    dtype: 'date', ddate: '', rplan: 'single', rtext: '',
+    method: 'cash', pen: 'pct', court: 'law', secure: 'none', extra: '',
+    html: '', edited: false
+  };
+
+  function storageOk() {
+    try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); return true; } catch (e) { return false; }
+  }
+  function loadDraft() {
+    var raw = null;
+    try { raw = localStorage.getItem(LS); } catch (e) { return; }
+    if (!raw) return;
+    try {
+      var d = JSON.parse(raw);
+      if (!d || typeof d !== 'object') return;
+      ['num', 'date', 'place', 'itype', 'ipay', 'dtype', 'ddate', 'rplan', 'rtext', 'method', 'pen', 'court', 'secure', 'extra', 'html'].forEach(function (k) {
+        if (typeof d[k] === 'string' && d[k]) S[k] = d[k];
+      });
+      ['sum', 'rate'].forEach(function (k) { if (typeof d[k] === 'number') S[k] = d[k]; });
+      if (typeof d.edited === 'boolean') S.edited = d.edited;
+      ['lender', 'borrower'].forEach(function (k) {
+        if (d[k] && typeof d[k] === 'object') {
+          Object.keys(S[k]).forEach(function (f) { if (typeof d[k][f] === 'string') S[k][f] = d[k][f]; });
+        }
+      });
+    } catch (e) {}
+  }
+  var saveTimer = null;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {}
+    }, 250);
+  }
+  function saveNow() {
+    try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {}
+  }
+
+  /* ================= документ ================= */
+  function fioParty(p, role) {
+    var fio = p.name || '[' + role + ']';
+    var pass = p.pass ? 'паспорт ' + esc(p.pass) : 'паспорт [серия, номер]';
+    var issued = p.issued ? ', выдан ' + esc(p.issued) : '';
+    var addr = p.addr ? ', зарегистрирован(а) по адресу: ' + esc(p.addr) : '';
+    return 'Гражданин(ка) ' + esc(fio) + ', ' + pass + issued + addr;
+  }
+
+  function buildHtml(s) {
+    var H = [];
+    var sum = Number(s.sum) || 0;
+    var free = s.itype === 'free' || !(Number(s.rate) > 0);
+    var rate = free ? 0 : Number(s.rate) || 0;
+
+    var title = 'ДОГОВОР ЗАЙМА' + (s.num ? ' № ' + esc(s.num) : '');
+    H.push('<h1>' + title + '</h1>');
+    H.push('<p class="date">' + (s.place ? esc(s.place) + ', ' : '') + dateRu(s.date) + '</p>');
+
+    H.push('<p class="body">' + fioParty(s.lender, 'Займодавец') + ', именуемый(ая) в дальнейшем «Займодавец», с одной стороны, и ' +
+      fioParty(s.borrower, 'Заёмщик') + ', именуемый(ая) в дальнейшем «Заёмщик», с другой стороны, вместе именуемые «Стороны», заключили настоящий договор о нижеследующем.</p>');
+
+    H.push('<h2>1. Предмет договора</h2>');
+    H.push('<ol>' +
+      '<li>Займодавец передаёт Заёмщику денежные средства в размере ' + fmt(sum) + ' (' + rublText(sum) + '), а Заёмщик обязуется вернуть сумму займа в срок и на условиях настоящего договора.</li>' +
+      '<li>Сумма займа передаётся ' + (s.method === 'transfer' ? 'переводом на банковский счёт Заёмщика' : 'наличными деньгами') + '.</li>' +
+      (free
+        ? '<li>Заём является беспроцентным: проценты за пользование суммой займа не начисляются (п. 1 ст. 809 ГК РФ).</li>'
+        : '<li>За пользование суммой займа начисляются проценты в размере ' + esc(String(rate)) + ' % годовых.</li>') +
+      '</ol>');
+
+    if (!free) {
+      H.push('<h2>2. Проценты</h2>');
+      var payText = s.ipay === 'monthly'
+        ? 'Проценты уплачиваются ежемесячно, не позднее последнего дня календарного месяца, за который они начислены.'
+        : s.ipay === 'advance'
+          ? 'Проценты за весь срок пользования займом уплачиваются при передаче суммы займа.'
+          : 'Проценты уплачиваются одновременно с возвратом суммы займа.';
+      H.push('<ol>' +
+        '<li>Проценты начисляются за фактическое количество дней пользования суммой займа, начиная со дня, следующего за днём передачи суммы займа, по день возврата включительно. При расчёте количество дней в году принимается равным 365 (366).</li>' +
+        '<li>' + payText + '</li>' +
+        '<li>Проценты начисляются на фактическую сумму задолженности; при досрочном возврате части займа проценты начисляются на оставшуюся сумму.</li>' +
+        '</ol>');
+    }
+
+    var n = free ? 2 : 3;
+    H.push('<h2>' + n + '. Порядок и срок возврата</h2>');
+    var dueClause = s.dtype === 'demand'
+      ? 'Срок возврата суммы займа не определён. Заёмщик обязан вернуть сумму займа в течение 30 дней со дня предъявления Займодавцем требования о возврате (ст. 810 ГК РФ).'
+      : 'Заём предоставляется на срок до ' + shortDate(s.ddate) + ' включительно.';
+    var repayClause = s.rplan === 'parts'
+      ? 'Сумма займа возвращается частями' + (s.rtext ? ': ' + esc(s.rtext) : ' согласно графику, согласованному Сторонами') + '.'
+      : 'Сумма займа возвращается единовременным платежом' + (s.rtext ? ': ' + esc(s.rtext) : '') + '.';
+    H.push('<ol>' +
+      '<li>' + dueClause + '</li>' +
+      '<li>' + repayClause + '</li>' +
+      '<li>Датой исполнения обязательства по возврату считается ' + (s.method === 'transfer' ? 'дата поступления денежных средств на счёт Займодавца' : 'дата передачи денежных средств Займодавцу') + '.</li>' +
+      '<li>Заёмщик вправе вернуть сумму займа досрочно, уведомив Займодавца не позднее чем за 10 дней до даты возврата.</li>' +
+      '</ol>');
+
+    n++;
+    H.push('<h2>' + n + '. Ответственность Сторон</h2>');
+    var penClause = s.pen === 'law'
+      ? 'За нарушение сроков возврата суммы займа и уплаты процентов Заёмщик уплачивает Займодавцу проценты в порядке, предусмотренном ст. 395 ГК РФ.'
+      : 'За нарушение срока возврата суммы займа и уплаты процентов Заёмщик уплачивает Займодавцу пени в размере 0,1 % от просроченной суммы за каждый день просрочки.';
+    H.push('<ol>' +
+      '<li>' + penClause + '</li>' +
+      '<li>Споры между Сторонами разрешаются путём переговоров, а при недостижении согласия — ' +
+      (s.court === 'lender' ? 'в суде по месту жительства Займодавца' : 'в суде в соответствии с законодательством Российской Федерации') + '.</li>' +
+      '</ol>');
+
+    n++;
+    H.push('<h2>' + n + '. Прочие условия</h2>');
+    var extraLi = '';
+    if (s.secure === 'guarantee') extraLi = '<li>Исполнение обязательств Заёмщика обеспечивается поручительством. Договор поручительства заключается отдельно и является неотъемлемой частью настоящего договора.</li>';
+    if (s.secure === 'pledge') extraLi = '<li>Исполнение обязательств Заёмщика обеспечивается залогом имущества. Договор залога заключается отдельно и является неотъемлемой частью настоящего договора.</li>';
+    if (s.extra && String(s.extra).trim()) extraLi += '<li>' + esc(String(s.extra).trim()) + '</li>';
+    H.push('<ol>' +
+      '<li>Договор вступает в силу с момента передачи суммы займа Заёмщику и действует до полного исполнения обязательств.</li>' +
+      '<li>Стороны подтверждают, что действуют добровольно, понимают значение своих действий и не находятся под влиянием заблуждения, обмана, насилия или угрозы.</li>' +
+      '<li>Во всём, что не предусмотрено настоящим договором, Стороны руководствуются законодательством Российской Федерации.</li>' +
+      '<li>Договор составлен в двух экземплярах, имеющих равную юридическую силу, по одному для каждой из Сторон.</li>' +
+      extraLi +
+      '</ol>');
+
+    n++;
+    var sign = '<h2>' + n + '. Реквизиты и подписи Сторон</h2>' +
+      '<div class="sign">' +
+      '<div><b>Займодавец:</b><br>' + partyRequisites(s.lender) + '<div class="line">_______________ / ' + esc(shortFio(s.lender.name)) + ' /</div></div>' +
+      '<div><b>Заёмщик:</b><br>' + partyRequisites(s.borrower) + '<div class="line">_______________ / ' + esc(shortFio(s.borrower.name)) + ' /</div></div>' +
+      '</div>';
+    H.push(sign);
+
+    H.push('<p class="body" style="margin-top:10pt">Сумма займа получена Заёмщиком в полном объёме. ' +
+      'Подписи Сторон подтверждают заключение договора на указанных условиях.</p>');
+    return H.join('');
+  }
+
+  function shortFio(name) {
+    var p = String(name || '').trim().split(/\s+/);
+    if (!p[0]) return '__________';
+    var out = p[0];
+    if (p[1]) out += ' ' + p[1].charAt(0) + '.';
+    if (p[2]) out += ' ' + p[2].charAt(0) + '.';
+    return out;
+  }
+  function partyRequisites(p) {
+    var parts = [];
+    if (p.name) parts.push('ФИО: ' + esc(p.name));
+    if (p.pass) parts.push('паспорт: ' + esc(p.pass));
+    if (p.issued) parts.push('выдан: ' + esc(p.issued));
+    if (p.addr) parts.push('адрес: ' + esc(p.addr));
+    if (p.phone) parts.push('тел.: ' + esc(p.phone));
+    if (p.email) parts.push('e-mail: ' + esc(p.email));
+    return parts.length ? parts.join('<br>') : '—';
+  }
+
+  function htmlToText(html) {
+    var div = document.createElement('div');
+    div.innerHTML = html || '';
+    var parts = [];
+    function walk(node) {
+      Array.prototype.forEach.call(node.childNodes, function (ch) {
+        if (ch.nodeType === 3) { parts.push(ch.nodeValue); return; }
+        if (ch.nodeType !== 1) return;
+        var tag = ch.tagName.toLowerCase();
+        if (tag === 'br') { parts.push('\n'); return; }
+        var block = /^(p|div|h1|h2|h3|li|tr|blockquote)$/.test(tag);
+        walk(ch);
+        if (block) parts.push('\n');
+      });
+    }
+    walk(div);
+    return parts.join('').replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  function renderDoc() {
+    var view = $('docView');
+    view.innerHTML = S.html || '';
+  }
+  function regenerate(force) {
+    if (!force && S.edited) return;
+    S.html = buildHtml(S);
+    S.edited = false;
+    renderDoc();
+    updateDirty();
+    renderChecks();
+    save();
+  }
+  function updateDirty() {
+    $('dirtyBadge').hidden = !S.edited;
+    $('editState').textContent = S.edited ? 'договор с вашими правками' : 'договор собирается автоматически';
+    $('editState').className = 'badge' + (S.edited ? ' warn' : '');
+  }
+
+  /* ================= проверки ================= */
+  function checks() {
+    var out = [];
+    if (!S.lender.name) out.push('Не указано ФИО займодавца');
+    if (!S.borrower.name) out.push('Не указано ФИО заёмщика');
+    if (!S.lender.pass) out.push('Нет паспорта займодавца');
+    if (!S.borrower.pass) out.push('Нет паспорта заёмщика');
+    if (!S.sum || Number(S.sum) <= 0) out.push('Не указана сумма займа');
+    if (S.dtype === 'date' && !S.ddate) out.push('Не указана дата возврата');
+    if (S.dtype === 'date' && S.ddate && S.ddate < S.date) out.push('Дата возврата раньше даты договора');
+    if (S.itype === 'rate' && !(Number(S.rate) > 0)) out.push('Не указана ставка процентов');
+    if (S.itype === 'free' && Number(S.sum) > 100000) out.push('Беспроцентный заём больше 100 000 ₽ — закон презюмирует проценты по ключевой ставке, если в договоре прямо не согласовано иное');
+    if (!S.date) out.push('Не указана дата договора');
+    return out;
+  }
+  function renderChecks() {
+    var box = $('checks');
+    box.innerHTML = '';
+    var list = checks();
+    if (!list.length) {
+      var ok = document.createElement('span');
+      ok.className = 'chk ok';
+      ok.textContent = '✓ Данных достаточно';
+      box.appendChild(ok);
+      return;
+    }
+    list.forEach(function (t) {
+      var s2 = document.createElement('span');
+      s2.className = 'chk';
+      s2.textContent = '! ' + t;
+      box.appendChild(s2);
+    });
+  }
+
+  /* ================= расчёт процентов (справочно) ================= */
+  function renderCalc() {
+    var sum = Number(S.sum) || 0;
+    $('sumWords').textContent = sum > 0 ? 'Сумма прописью: ' + rublText(sum) : '—';
+    var hint = '';
+    if (S.itype === 'rate' && Number(S.rate) > 0 && sum > 0 && S.dtype === 'date' && S.ddate && S.date) {
+      var d1 = new Date(S.date + 'T00:00:00');
+      var d2 = new Date(S.ddate + 'T00:00:00');
+      var days = Math.round((d2 - d1) / 86400000);
+      if (days > 0) {
+        var interest = sum * (Number(S.rate) / 100) * days / 365;
+        hint = 'Справочно: за ' + days + ' дней процентов примерно ' + fmt(Math.round(interest)) + ' (при возврате в срок).';
+      }
+    }
+    $('calcHint').textContent = hint;
+  }
+
+  /* ================= поля ================= */
+  function syncFields() {
+    [['num', 'num'], ['place', 'place'], ['date', 'date']].forEach(function (p) { $(p[0]).value = S[p[1]] || ''; });
+    [['l_name', 'lender', 'name'], ['l_pass', 'lender', 'pass'], ['l_issued', 'lender', 'issued'], ['l_addr', 'lender', 'addr'], ['l_phone', 'lender', 'phone'], ['l_email', 'lender', 'email'],
+     ['b_name', 'borrower', 'name'], ['b_pass', 'borrower', 'pass'], ['b_issued', 'borrower', 'issued'], ['b_addr', 'borrower', 'addr'], ['b_phone', 'borrower', 'phone'], ['b_email', 'borrower', 'email']].forEach(function (p) {
+      $(p[0]).value = S[p[1]][p[2]] || '';
+    });
+    $('sum').value = S.sum || '';
+    $('itype').value = S.itype;
+    $('rate').value = S.rate;
+    $('rate').disabled = S.itype === 'free';
+    $('ipay').value = S.ipay;
+    $('dtype').value = S.dtype;
+    $('ddate').value = S.ddate || '';
+    $('rplan').value = S.rplan;
+    $('rtext').value = S.rtext || '';
+    $('method').value = S.method;
+    $('pen').value = S.pen;
+    $('court').value = S.court;
+    $('secure').value = S.secure;
+    $('extra').value = S.extra || '';
+  }
+
+  function bind() {
+    $('num').addEventListener('input', function () { S.num = $('num').value; onField(); });
+    $('place').addEventListener('input', function () { S.place = $('place').value; onField(); });
+    $('date').addEventListener('change', function () { S.date = $('date').value; onField(); });
+    [['l_name', 'lender', 'name'], ['l_pass', 'lender', 'pass'], ['l_issued', 'lender', 'issued'], ['l_addr', 'lender', 'addr'], ['l_phone', 'lender', 'phone'], ['l_email', 'lender', 'email'],
+     ['b_name', 'borrower', 'name'], ['b_pass', 'borrower', 'pass'], ['b_issued', 'borrower', 'issued'], ['b_addr', 'borrower', 'addr'], ['b_phone', 'borrower', 'phone'], ['b_email', 'borrower', 'email']].forEach(function (p) {
+      $(p[0]).addEventListener('input', function () { S[p[1]][p[2]] = $(p[0]).value; onField(); });
+    });
+    $('sum').addEventListener('input', function () { S.sum = Math.max(0, Number($('sum').value) || 0); onField(); });
+    $('itype').addEventListener('change', function () {
+      S.itype = $('itype').value;
+      $('rate').disabled = S.itype === 'free';
+      onField();
+    });
+    $('rate').addEventListener('input', function () { S.rate = Math.max(0, Number($('rate').value) || 0); onField(); });
+    ['ipay', 'dtype', 'rplan', 'method', 'pen', 'court', 'secure'].forEach(function (id) {
+      $(id).addEventListener('change', function () { S[id === 'rplan' ? 'rplan' : id] = $(id).value; onField(); });
+    });
+    $('ddate').addEventListener('change', function () { S.ddate = $('ddate').value; onField(); });
+    $('rtext').addEventListener('input', function () { S.rtext = $('rtext').value; onField(); });
+    $('extra').addEventListener('input', function () { S.extra = $('extra').value; onField(); });
+
+    $('docView').addEventListener('input', function () {
+      S.html = $('docView').innerHTML;
+      S.edited = true;
+      updateDirty();
+      save();
+    });
+    $('btnRebuild').addEventListener('click', function () { regenerate(true); toast('Договор собран заново'); });
+    $('btnCopy').addEventListener('click', copyText);
+    $('btnDoc').addEventListener('click', downloadDoc);
+    $('btnPrint').addEventListener('click', printDoc);
+    $('btnNew').addEventListener('click', function () {
+      if (!window.confirm('Начать новый договор? Текущий черновик будет очищен.')) return;
+      try { localStorage.removeItem(LS); } catch (e) {}
+      S.num = ''; S.place = ''; S.date = todayIso();
+      S.lender = { name: '', pass: '', issued: '', addr: '', phone: '', email: '' };
+      S.borrower = { name: '', pass: '', issued: '', addr: '', phone: '', email: '' };
+      S.sum = 0; S.itype = 'free'; S.rate = 5; S.ipay = 'final';
+      S.dtype = 'date'; S.ddate = ''; S.rplan = 'single'; S.rtext = '';
+      S.method = 'cash'; S.pen = 'pct'; S.court = 'law'; S.secure = 'none'; S.extra = '';
+      S.edited = false;
+      syncFields();
+      regenerate(true);
+      toast('Новый договор');
+    });
+  }
+
+  function onField() {
+    renderCalc();
+    renderChecks();
+    if (!S.edited) {
+      S.html = buildHtml(S);
+      renderDoc();
+      updateDirty();
+    }
+    save();
+  }
+
+  /* ================= копирование / файл / печать ================= */
+  function copyText() {
+    var text = htmlToText(S.html || '');
+    var done = function (ok) { toast(ok ? 'Текст скопирован' : 'Не удалось скопировать', !ok); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }).catch(function () { done(fallbackCopy(text)); });
+    } else done(fallbackCopy(text));
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+  function downloadDoc() {
+    try {
+      var styles = '<style>' +
+        '.doc{font-family:"Times New Roman",serif;font-size:12pt;line-height:1.5;color:#000}' +
+        '.doc h1{text-align:center;font-size:14pt;margin:14pt 0 10pt}' +
+        '.doc p{margin:0 0 6pt}' +
+        '.doc p.body{text-indent:1.25cm;text-align:justify}' +
+        '.doc h2{font-size:12pt;margin:12pt 0 4pt}' +
+        '.doc ol{padding-left:20pt}' +
+        '.doc .date{text-align:right}' +
+        '.doc .sign{display:block;margin-top:18pt}' +
+        '.doc .sign div{display:inline-block;width:48%;vertical-align:top}' +
+        '</style>';
+      var html = '<html><head><meta charset="utf-8"><title>' + esc('Договор займа' + (S.num ? ' № ' + S.num : '')) + '</title>' + styles + '</head><body><div class="doc">' + (S.html || '') + '</div></body></html>';
+      var blob = new Blob(['\ufeff' + html], { type: 'application/msword' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = ('Договор займа' + (S.num ? ' № ' + S.num : '') + '.doc').replace(/[\\/:*?"<>|]/g, '-');
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      toast('Файл .doc скачан');
+    } catch (e) { toast('Браузер не дал скачать файл', true); }
+  }
+  function printDoc() {
+    var pd = $('printdoc');
+    pd.className = 'printdoc doc';
+    pd.innerHTML = S.html || '';
+    window.print();
+  }
+
+  /* ================= запуск ================= */
+  function init() {
+    if (!storageOk()) $('lsBanner').hidden = false;
+    loadDraft();
+    syncFields();
+    bind();
+    renderCalc();
+    regenerate(true);
+    renderChecks();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>
